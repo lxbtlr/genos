@@ -27,10 +27,18 @@ class Vertex():
     
 
 @dataclass
-class Polygon():
+class Solution():
     nvertices:uint8
     vertices:ArrayLike
     color:ArrayLike
+
+@dataclass
+class Canvas():
+    sequence: list[Solution]
+        
+    def image(self):
+        
+        return
 
 #HACK: currently only using RGBA, move to using *ARGS and toggle how they are
 # used by the argparse colormode flag
