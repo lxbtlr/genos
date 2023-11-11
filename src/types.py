@@ -1,4 +1,4 @@
-from numpy import dtype, array, recarray, uint8, ndarray
+from numpy import dtype, array, recarray, uint8, ndarray, str_
 from dataclasses import dataclass
 from numpy.typing import ArrayLike
 
@@ -12,6 +12,12 @@ class RGBA():
     b:uint8
     a:uint8
     
+    def __init__(self,r,g,b,a):
+        self.r = uint8(r)
+        self.g = uint8(g)
+        self.b = uint8(b)
+        self.a = uint8(a)
+
     def get_all(self)-> ndarray:
         return array((self.r,self.g,self.b,self.a))
 
@@ -19,6 +25,7 @@ class RGBA():
 class Vertex():
     x:ndarray
     y:ndarray
+
     def pairs(self,):
         """
         Get x,y pairs
@@ -28,9 +35,20 @@ class Vertex():
 
 @dataclass
 class Solution():
+    """
+    Datatype representing a single solution / polygon
+    """
     nvertices:uint8
     vertices:ArrayLike
-    color:ArrayLike
+    color:RGBA
+    
+    def __init__(self, nvertices, vertices, color):
+        
+        self.vertices = vertices
+        self.nvertices = uint8(nvertices)
+        self.color = color
+
+
 
 @dataclass
 class Canvas():
@@ -47,16 +65,10 @@ class Canvas():
         """
         Composite all polygons into an image
         """
-        #TODO: this
+        
         return
 
-#HACK: currently only using RGBA, move to using *ARGS and toggle how they are
-# used by the argparse colormode flag
-def color(r,g,b,a):
-    Color = dtype({'names': ['r', 'g', 'b','a'],
-                   'formats': ['B', 'B','B', 'B',]}) 
-    arr = array((r,g,b,a),dtype=Color)
-    return arr.view(recarray)
 
 if __name__ == "__main__":
-    print(color(1,1,1,1))
+    red = RGBA(1,1,1,1)
+    print(red.r, type(red.r))
