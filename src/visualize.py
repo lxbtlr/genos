@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 from matplotlib.collections import PatchCollection
-from types1 import Canvas, Solution, Vertex, RGBA
+from custom_types import Canvas, Solution, Vertex, RGBA
 
 DIMS = (64, 64)
 N_VERTICES_TRI = 3
