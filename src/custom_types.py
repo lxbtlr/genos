@@ -1,4 +1,4 @@
-from numpy import dtype, array, recarray, uint8, ndarray, str_
+from numpy import dtype, array, recarray, float32, uint8, ndarray, str_
 from dataclasses import dataclass
 from numpy.typing import ArrayLike
 
@@ -10,13 +10,13 @@ class RGBA():
     r:uint8
     g:uint8
     b:uint8
-    a:uint8
+    a:float32
     
     def __init__(self,r,g,b,a):
         self.r = uint8(r)
         self.g = uint8(g)
         self.b = uint8(b)
-        self.a = uint8(a)
+        self.a = float32(a)
 
     def get_all(self)-> ndarray:
         return array((self.r,self.g,self.b,self.a))
