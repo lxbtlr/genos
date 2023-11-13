@@ -23,7 +23,7 @@ def visualize_canvas(canvas: Canvas) -> None:
     plt.show()
 
 
-def add_polygon(canvas: Canvas, polygon: Polygon) -> Canvas:
+def add_polygon(canvas: Canvas, polygon: Solution) -> Canvas:
     """
     Add a polygon to the canvas
     """
