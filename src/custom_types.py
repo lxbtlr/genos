@@ -74,7 +74,7 @@ class Canvas():
         """
         return len(self.sequence)
 
-    def get_pos(self, _id):
+    def get_index(self, _id):
         """
         get the index of a solution in the sequence by id
         """
@@ -91,7 +91,7 @@ class Canvas():
         series 1/(2^i), where the i is the index of the id given 
         """
 
-        return 1/(2**(1+self.get_pos(_id)))
+        return 1/(2**(1+self.get_index(_id)))
 
 
     def get_order(self):
@@ -99,7 +99,7 @@ class Canvas():
         get all id's of the sequence in the order they appear
         """
         
-        return [i._id for i in self.sequence]
+        return array([i._id for i in self.sequence])
 
     def image(self):
         """
@@ -114,6 +114,7 @@ class Simulation():
         """
         Initial simualtion
         """
+    
     
 
 
