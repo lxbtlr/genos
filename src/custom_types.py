@@ -7,15 +7,15 @@ from numpy.typing import ArrayLike
 # RGBA Color
 @dataclass
 class RGBA():
-    r:uint8
-    g:uint8
-    b:uint8
+    r:float32
+    g:float32
+    b:float32
     a:float32
     
     def __init__(self,r,g,b,a):
-        self.r = uint8(r)
-        self.g = uint8(g)
-        self.b = uint8(b)
+        self.r = float32(r)
+        self.g = float32(g)
+        self.b = float32(b)
         self.a = float32(a)
 
     def get_all(self)-> ndarray:
@@ -38,7 +38,6 @@ class Solution():
     """
     Datatype representing a single solution / polygon
     """
-    nvertices:uint8
     vertices:ArrayLike
     color:RGBA
     
@@ -47,7 +46,6 @@ class Solution():
         self.vertices = vertices
         self.nvertices = uint8(nvertices)
         self.color = color
-
 
 
 @dataclass
