@@ -39,7 +39,7 @@ def polygon_init(
     return solution
 
 
-def polygon_mutate(canvas: Canvas, polygon: Polygon) -> Polygon:
+def polygon_mutate(canvas: Canvas, polygon: Solution) -> Solution:
     """
     Mutate a Polygon object.
 
@@ -49,10 +49,10 @@ def polygon_mutate(canvas: Canvas, polygon: Polygon) -> Polygon:
     3. Mutate the sequence of polygons
 
     Args:
-        polygon (Polygon): Polygon object to mutate.
+        polygon (Solution): Solution object to mutate.
 
     Returns:
-        Polygon: Mutated Polygon object.
+        Solution: Mutated Solution object.
     """
     mode = np.random.randint(3)
 
@@ -72,9 +72,9 @@ def polygon_mutate(canvas: Canvas, polygon: Polygon) -> Polygon:
     return canvas, polygon
 
 
-def mutate_vertex(polygon: Polygon, bounds: tuple[int, int] = DIMS) -> Polygon:
+def mutate_vertex(polygon: Solution, bounds: tuple[int, int] = DIMS) -> Solution:
     """
-    Mutate a vertex of a Polygon object.
+    Mutate a vertex of a Solution object.
 
     There are 4 possible vertex mutation mechanisms:
     - Mutate the x coordinate of a vertex
@@ -85,10 +85,10 @@ def mutate_vertex(polygon: Polygon, bounds: tuple[int, int] = DIMS) -> Polygon:
         4. Mutation by a random number in bound
 
     Args:
-        polygon (Polygon): Polygon object to mutate.
+        polygon (Solution): Solution object to mutate.
 
     Returns:
-        Polygon: Mutated Polygon object.
+        Solution: Mutated Solution object.
     """
 
     def change_value(value: float, bound: int):
@@ -146,9 +146,9 @@ def check_bound(
     return -increment
 
 
-def mutate_color(polygon: Polygon) -> Polygon:
+def mutate_color(polygon: Solution) -> Solution:
     """
-    Mutate one of the RGBA values of a Polygon object.
+    Mutate one of the RGBA values of a Solution object.
 
     There are 8 possible color mutation mechanisms:
     - Mutate the red value of a polygon
@@ -165,10 +165,10 @@ def mutate_color(polygon: Polygon) -> Polygon:
         8. Mutation by a random number in bound
 
     Args:
-        polygon (Polygon): Polygon object to mutate.
+        polygon (Solution): Solution object to mutate.
 
     Returns:
-        Polygon: Mutated Polygon object.
+        Solution: Mutated Solution object.
     """
 
     def change_value(value: float):
