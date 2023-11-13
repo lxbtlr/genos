@@ -20,7 +20,8 @@ def complete_percent(base_image:ndarray,comp_image:ndarray):
     Compute the complete percentage loss metric
     
     This value is the difference between the maximum loss between the base image 
-    and the canvas, normalized as a percentage 
+    and the canvas, minus the loss of the comparison and base images, normalized
+    as a percentage. 
     """
 
     blank  = img.imread("../img/black.png")
