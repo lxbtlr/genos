@@ -23,18 +23,6 @@ def visualize_canvas(canvas: Canvas) -> None:
     plt.show()
 
 
-def create_polygon(solution: Solution) -> Polygon:
-    """
-    Create a Polygon object from a Solution
-    """
-    polygon = Polygon(
-        xy=np.c_[solution.vertices.x, solution.vertices.y],
-        closed=True,
-        color=solution.color.get_all() / 255,  # Normalize RGBA values from 0-255 to 0-1
-    )
-    return polygon
-
-
 def add_polygon(canvas: Canvas, polygon: Polygon) -> Canvas:
     """
     Add a polygon to the canvas
