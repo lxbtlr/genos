@@ -72,25 +72,34 @@ class Canvas():
         """
         get how many solutions are in the sequence
         """
-        return
-
-    def mut_prob(self, _id):
-        """
-        get the mutability from a polygon by id
-        """
-        return
+        return len(self.sequence)
 
     def get_pos(self, _id):
         """
         get the index of a solution in the sequence by id
         """
-        return
+        for c, val in enumerate(self.sequence):
+            if val._id == _id:
+                return c
+            
+        #NOTE: Case where the index is not found
+        return -1 
+
+    def mut_prob(self, _id):
+        """
+        get the mutability from a polygon by id, this should be the geometric 
+        series 1/(2^i), where the i is the index of the id given 
+        """
+
+        return 1/(2**(1+self.get_pos(_id)))
+
 
     def get_order(self):
         """
         get all id's of the sequence in the order they appear
         """
-        return
+        
+        return [i._id for i in self.sequence]
 
     def image(self):
         """
