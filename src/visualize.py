@@ -1,11 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.patches import Polygon
 from matplotlib.collections import PatchCollection
-from custom_types import Canvas, Solution, Vertex, RGBA
+from src.custom_types import Canvas, Solution, Vertex, RGBA
 
 DIMS = (64, 64)
-N_VERTICES_TRI = 3
 
 
 def visualize_canvas(canvas: Canvas) -> None:
@@ -36,15 +34,15 @@ if __name__ == "__main__":
 
     for i in range(10):
         solution = Solution(
-            N_VERTICES_TRI,
             Vertex(np.random.rand(3, 1) * DIMS[0], np.random.rand(3, 1) * DIMS[1]),
             RGBA(
-                np.random.rand() * 255,
-                np.random.rand() * 255,
-                np.random.rand() * 255,
-                100,
+                np.random.rand(),
+                np.random.rand(),
+                np.random.rand(),
+                np.random.rand(),
             ),
+            _id=i,
         )
-        canvas = add_polygon(canvas, create_polygon(solution))
+        canvas = add_polygon(canvas, solution)
 
     visualize_canvas(canvas)
