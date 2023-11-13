@@ -1,14 +1,13 @@
 import numpy as np
 from matplotlib.patches import Polygon
 from src.custom_types import Canvas, Solution, Vertex, RGBA
-from src.visualize import create_polygon
 
 DIMS = (64, 64)
 N_VERTICES_TRI = 3
 
 
 def polygon_init(
-    n_vertices: int = N_VERTICES_TRI, bounds: tuple[int, int] = DIMS
+    n_vertices: int = N_VERTICES_TRI, bounds: tuple[int, int] = DIMS, id: int
 ) -> Polygon:
     """
     Create a random Polygon object.
@@ -18,26 +17,26 @@ def polygon_init(
           (triangle).
         bounds (tuple[int, int]): Bounds of the canvas in (x, y). Defaults to
           (64, 64).
+        id (int): ID of the polygon.
 
     Returns:
         Polygon: Polygon object.
     """
     # TODO: incorporate energy map into this
     solution = Solution(
-        n_vertices,
         Vertex(
             np.random.rand(n_vertices, 1) * bounds[0],
             np.random.rand(n_vertices, 1) * bounds[1],
         ),
         RGBA(
-            np.random.rand() * 255,
-            np.random.rand() * 255,
-            np.random.rand() * 255,
-            np.random.rand() * 255,
+            np.random.rand(),
+            np.random.rand(),
+            np.random.rand(),
+            np.random.rand(),
         ),
+        id
     )
-    polygon = create_polygon(solution)
-    return polygon
+    return solution
 
 
 def polygon_mutate(canvas: Canvas, polygon: Polygon) -> Polygon:
