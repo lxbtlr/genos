@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.image as img
 
 
-def image_diff(image1, image2):
+def image_diff(image1:ndarray, image2:ndarray)->float:
     """
     Compute the absolute difference of two images
     """
@@ -15,7 +15,7 @@ def image_diff(image1, image2):
 
     return percentage
 
-def complete_percent(base_image:ndarray,comp_image:ndarray):
+def complete_percent(base_image:ndarray,comp_image:ndarray)->float:
     """
     Compute the complete percentage loss metric
     
