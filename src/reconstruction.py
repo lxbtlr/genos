@@ -1,7 +1,7 @@
 import numpy as np
 from matplotlib.patches import Polygon
-from custom_types import Canvas, Solution, Vertex, RGBA
-from visualize import create_polygon
+from src.custom_types import Canvas, Solution, Vertex, RGBA
+from src.visualize import create_polygon
 
 DIMS = (64, 64)
 N_VERTICES_TRI = 3
