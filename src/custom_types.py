@@ -1,4 +1,5 @@
 from numpy import dtype, array, recarray, float32, uint8, ndarray, str_
+import numpy as np
 import matplotlib.patches
 from dataclasses import dataclass
 from numpy.typing import ArrayLike
@@ -39,13 +40,9 @@ class Solution(matplotlib.patches.Polygon):
     """
     Datatype representing a single solution / polygon
     """
-    vertices:ArrayLike
-    color:RGBA
-    _id:int
-
     def __init__(self, vertices:Vertex, color:RGBA, _id:int):
         
-        super.__init__(xy=np.c_[vertices.x, vertices.y], 
+        super().__init__(xy=np.c_[vertices.x, vertices.y], 
                        color=color.get_all(),
                        closed=True)
         self._id:int = _id
