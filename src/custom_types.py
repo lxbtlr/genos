@@ -1,6 +1,7 @@
 from numpy import dtype, array, recarray, float32, uint8, ndarray, str_
 import numpy as np
 import matplotlib.patches
+import matplotlib.collections
 from dataclasses import dataclass
 from numpy.typing import ArrayLike
 
@@ -56,15 +57,40 @@ class Solution(matplotlib.patches.Polygon):
 
 @dataclass
 class Canvas():
-    sequence: list[Solution]
-    
+    sequence: list[Solution]    
 
     def swap(self, ind_1, ind_2):
         """
         given two indicies swap the position of the two Solutions
         """
+        
         self.sequence[ind_1], self.sequence[ind_2] = self.sequence[ind_2], self.sequence[ind_1] 
+        
         return None
+
+    def how_many(self):
+        """
+        get how many solutions are in the sequence
+        """
+        return
+
+    def mut_prob(self, _id):
+        """
+        get the mutability from a polygon by id
+        """
+        return
+
+    def get_pos(self, _id):
+        """
+        get the index of a solution in the sequence by id
+        """
+        return
+
+    def get_order(self):
+        """
+        get all id's of the sequence in the order they appear
+        """
+        return
 
     def image(self):
         """
@@ -72,6 +98,17 @@ class Canvas():
         """
         
         return
+
+class Simulation():
+
+    def __init__(self,):
+        """
+        Initial simualtion
+        """
+    
+
+
+
 
 
 if __name__ == "__main__":
