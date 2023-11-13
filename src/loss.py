@@ -1,4 +1,4 @@
-from numpy import ndarray, absolute, count_nonzero
+from numpy import ndarray, absolute, count_nonzero, zeros, ones
 import matplotlib.pyplot as plt
 import matplotlib.image as img
 
@@ -23,8 +23,7 @@ def complete_percent(base_image:ndarray,comp_image:ndarray):
     and the canvas, minus the loss of the comparison and base images, normalized
     as a percentage. 
     """
-
-    blank  = img.imread("../img/black.png")
+    blank  = zeros(base_image.shape)
     max_l  = image_diff(base_image, blank)
 
     if max_l == 0:
@@ -36,12 +35,12 @@ def complete_percent(base_image:ndarray,comp_image:ndarray):
 
 if __name__ == "__main__":
     # test case of comparing two images
-    b = img.imread("../img/black.png")
     g = img.imread("../img/g.png")
-    w = img.imread("../img/white.png")
+    b = zeros(g.shape)
+    w = ones(g.shape)
     
-    print("absdiff of:\n\twhite.png, black.png:",complete_percent(w,b))
-    print("absdiff of:\n\twhite.png, g.png",complete_percent(w,g))
+    print("absdiff of:\n\twhite, black:",complete_percent(w,b))
+    print("absdiff of:\n\twhite, g.png",complete_percent(w,g))
 
 
 
