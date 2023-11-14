@@ -8,7 +8,7 @@ N_VERTICES_TRI = 3
 
 def polygon_init(
     n_vertices: int = N_VERTICES_TRI, bounds: tuple[int, int] = DIMS, id: int
-) -> Polygon:
+) -> Solution:
     """
     Create a random Polygon object.
 
@@ -34,12 +34,12 @@ def polygon_init(
             np.random.rand(),
             np.random.rand(),
         ),
-        id
+        _id=id
     )
     return solution
 
 
-def polygon_mutate(canvas: Canvas, polygon: Solution) -> Solution:
+def polygon_mutate(canvas: Canvas, polygon: Solution) -> tuple[Canvas,Solution]:
     """
     Mutate a Polygon object.
 
@@ -67,7 +67,7 @@ def polygon_mutate(canvas: Canvas, polygon: Solution) -> Solution:
         swap_idx = np.random.randint(n_polygons)
         # Swap the polygons
         # FIXME: id is not defined yet -- need a way to keep track of the order
-        canvas.swap(polygon.id, swap_idx)
+        canvas.swap(polygon._id, swap_idx)
 
     return canvas, polygon
 
