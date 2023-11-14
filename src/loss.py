@@ -35,13 +35,13 @@ def complete_percent(base_image:ndarray,comp_image:ndarray)->float:
 
 if __name__ == "__main__":
     # test case of comparing two images
-    g = img.imread("../img/g.png")
-    b = zeros(g.shape)
-    w = ones(g.shape)
+    one = img.imread("../img/1.png")
+    b = zeros(one.shape)
+    w = ones(one.shape)
     
-    print(g.shape)
+    print(one.shape)
     print("absdiff of:\n\twhite, black:",complete_percent(w,b))
-    print("absdiff of:\n\twhite, g.png",complete_percent(w,g))
+    print("absdiff of:\n\twhite, g.png",complete_percent(w,one))
 
 
 
