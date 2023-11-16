@@ -1,10 +1,9 @@
 from src.custom_types import Solution, Vertex, RGBA, Canvas
 from src.reconstruction import polygon_init, polygon_mutate 
+from src.visualize import add_polygon
+from src.loss import image_diff
 from numpy import array
 import numpy as np
-
-from src.visualize import add_polygon, polygon_mutate
-
 
 class Simulation():
 
@@ -12,11 +11,15 @@ class Simulation():
         """
         Init simulation.
         Keywords:
-            - base image
-            - output image
-            - max generations
-            - max iterations
-            - stagnation limit
+            - Base image
+            - Output image
+            - Max generations
+            - Max iterations
+            - Stagnation limit
+            - Number evaluations
+            - Height
+            - Width
+            - Number Verticies
         """
         
         self.base_image           = kwargs.get("b_image")
@@ -26,6 +29,8 @@ class Simulation():
         self.stagnation_limit:int = kwargs.get("stag_lim",10)
         self.n_verticies:int      = kwargs.get("n_vert",3)
         self.num_evals:int        = kwargs.get("n_evals",50000)
+
+        #TODO: make these defined by the base image
         self.height:int           = kwargs.get("height",32)
         self.width:int            = kwargs.get("width",32)
         
@@ -62,23 +67,25 @@ class Simulation():
      
         #TODO: get loss of current solution
         v_k = float(.1)
-
+            
             
         while t <= self.num_evals:
             polygon_i = np.random.choice(array(self.canvas.sequence),p=probabilities)
                 
-            self.canvas, new = mutate_polygon(self.canvas,polygon_i)
+            self.canvas, new = polygon_mutate(self.canvas,polygon_i)
             
             #TODO: SCORE
             l_base = float(1)
             l_new = float(1)
             
-            if l_new > l_base:
-                self.counter +=1
+            if l_new < l_base:
                 
-            else:
-                new = polygon_i
                 self.counter = 0
+            else:
+                
+                new = polygon_i
+                self.counter +=1
+                    
             t += 1
             
             # NOTE: CHECK THIS 
