@@ -7,9 +7,49 @@ This project aims to implement meta-heuristic search algorithm for image reconst
 
 # Procedure
 
-In the reconstruction, we'll start with a solution that contains a single randomly generated polygon in the canvas. We will also input the source image, number of polygons, global iteration limit, and generation iteration limit.
+For executing the reconstruction, we need to provide the following parameters:
 
-First, we will select the polygon in solution sequence based on the selection probability to try and optimize. Mutation could happen in multiple ways, which will be outlined in the coming subsection. Then, compute the loss function (not $CP$).
+- source image
+- max number of polygons
+- global iteration limit
+- stagnation limit
+
+Some terminologies that will be used in the following sections:
+
+- **Polygon**: a closed shape with specified vertices and RGBA values.
+- **Solution**: a sequence of polygon(s).
+- **Canvas**: a blank image with the same dimension as the source image.
+- **Generation**: a set of iterations resulting within the same number of polygons -- i.e., optimizations at a given number of polygons.
+- **Global iteration**: a single iteration of the algorithm regardless of the generations.
+- **Stagnation**: an iteration in a generation that does not improve the fitness score.
+- **Selection probability**: the probability of selecting a specific polygon in a solution sequence for mutation.
+
+## Initialization
+
+We will first create an initial solution $S_0$ that contains a single randomly generated polygon in the canvas. Next, we will compute the [objective loss function](#fitness-score) $L_0$ of the initial solution. Then, we will set up the [energy map](#energy-map) $E_0$ of the initial solution.
+
+Before we start the main loop, we will set up index variables $t=0$, and $k=1$. $t$ will be used to track the number of global iterations, and $k$ will be used to track the number of polygons in the current solution. We also need to initialize the stagnation counter variable $s=0$.
+
+Lastly, set the generational loss function $V_k = L_0$, and the selection probability $P_1$ to be equal to $1$ since there is only one polygon. The selection probability will be updated after each generation where a new polygon is added to the solution sequence. The sequence will follow a geometric series.
+
+## Main Loop
+
+1. Copy over the current solution $S_t$ to $S_{t+1}$.
+2. Choose a random index of the solution sequence (thereby selecting a polygon for mutation) from the geometric series of selection probability $[P_1, P_2, ..., P_k]$.
+3. Mutate the selected polygon.
+4. Calculate the loss function $L_{t+1}$ of the new solution $S_{t+1}$.
+5. If $L_{t+1} < L_t$ -- meaning, the new solution is more similar to the source image -- then set the counter variable $s=0$. Otherwise, increment $s$ by 1 and roll back the solution to $S_{t+1}$ to $S_t$ to avoid backward progress.
+6. Increment the global iteration counter $t$ by 1.
+7. If $s$ is greater than the stagnation limit, AND the current number of polygons is less than the max number of polygons, then:
+   - If the new $L_{t}$ is less than the parent generation (not parent solution) $V_{k}$, then we are going to accept this solution as the current generation's best solution. Therefore:
+     - Set the new $V_k$ to be equal to $L_{t}$.
+     - Update the energy map
+     - Generate an additional random polygon based on energy map
+     - Initialize the next solution $S_t$ with the new polygon; if this step is ran, step (1) should be skipped.
+     - Modify the selection probabilities for the new solution sequence.
+     - Increment $k$ by 1 and reset the stagnation counter $s=0$.
+   - Otherwise, we will discard the solution and reinitialize the $k$th polygon in the current solution sequence with a random polygon. Then, we will increment $s$ by 1, which will directly lead to checking if the new polygon improved the fitness.
+8. Lastly, if it's the start of the last generation, i.e., if the current number of polygons is equal to the max number of polygons, then we will set the selection probability of all polygons to equal.
 
 ## Mutation
 
