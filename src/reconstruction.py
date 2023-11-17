@@ -7,7 +7,7 @@ N_VERTICES_TRI = 3
 
 
 def polygon_init(
-    n_vertices: int = N_VERTICES_TRI, bounds: tuple[int, int] = DIMS, id: int
+    id: int, n_vertices: int = N_VERTICES_TRI, bounds: tuple[int, int] = DIMS
 ) -> Solution:
     """
     Create a random Polygon object.
@@ -34,12 +34,14 @@ def polygon_init(
             np.random.rand(),
             np.random.rand(),
         ),
-        _id=id
+        _id=id,
     )
     return solution
 
 
-def polygon_mutate(canvas: Canvas, polygon: Solution) -> tuple[Canvas,Solution]:
+def polygon_mutate(
+    canvas: Canvas, polygon: Solution
+) -> tuple[Canvas, Solution]:
     """
     Mutate a Polygon object.
 
@@ -72,7 +74,9 @@ def polygon_mutate(canvas: Canvas, polygon: Solution) -> tuple[Canvas,Solution]:
     return canvas, polygon
 
 
-def mutate_vertex(polygon: Solution, bounds: tuple[int, int] = DIMS) -> Solution:
+def mutate_vertex(
+    polygon: Solution, bounds: tuple[int, int] = DIMS
+) -> Solution:
     """
     Mutate a vertex of a Solution object.
 
@@ -95,7 +99,9 @@ def mutate_vertex(polygon: Solution, bounds: tuple[int, int] = DIMS) -> Solution
         mode = np.random.randint(2)
         if mode:
             # Mutate by a scaled increment
-            increment = check_bound(np.random.randint(0.1 * bound), value, bound)
+            increment = check_bound(
+                np.random.randint(0.1 * bound), value, bound
+            )
             value += increment
         else:
             # Mutate by a number in bound
