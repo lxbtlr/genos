@@ -1,7 +1,7 @@
 from src.custom_types import Solution, Vertex, RGBA, Canvas
 from src.reconstruction import polygon_init, polygon_mutate 
 from src.visualize import add_polygon
-from src.loss import image_diff
+from src.loss import sad
 from numpy import array
 import numpy as np
 
@@ -22,21 +22,18 @@ class Simulation():
             - Number Verticies
         """
         
-        self.base_image           = kwargs.get("b_image")
+        self.base_image:np.ndarray= kwargs.get("b_image",array([]))
         self.output_image         = kwargs.get("o_image")
         self.max_generations:int  = kwargs.get("m_gen",10)
         self.max_iterations:int   = kwargs.get("m_iter",10)
         self.stagnation_limit:int = kwargs.get("stag_lim",10)
         self.n_verticies:int      = kwargs.get("n_vert",3)
-        self.num_evals:int        = kwargs.get("n_evals",50000)
-
-        #TODO: make these defined by the base image
-        self.height:int           = kwargs.get("height",32)
-        self.width:int            = kwargs.get("width",32)
+        self.num_evals:int        = kwargs.get("n_evals",50000) # NOTE: this value is from the paper
         
-        # NOTE: this value is from the paper
+        # Derived class variables
+        #TODO: make these defined by the base image
+        self.height,self.width    =  self.base_image.shape        
         self.canvas = Canvas(list())
-        self.counter = 0
 
     def mk_probabilities(self,):
         """
@@ -51,6 +48,12 @@ class Simulation():
         n_probabilities = probabilities / np.sum(probabilities)
         return
 
+    def eval_loss(self, image):
+        """
+        Evaluate an image to the base_image and return the SAD
+        """
+        return sad(self.base_image, image)
+
     def run(self,):
         """
         Run the simulation until completion.
@@ -58,51 +61,52 @@ class Simulation():
         
         # initialize vars
         t= 0
-        self.counter = 0
+        counter = 0
         
         # Create a new random polygon & add it to the canvas
         self.canvas = add_polygon(self.canvas,
                                   polygon_init(id=self.canvas.how_many()))
         probabilities = self.mk_probabilities()
      
-        #TODO: get loss of current solution
-        v_k = float(.1)
-            
+        # get loss of current solution
+        v_k = self.eval_loss(self.canvas.image()) 
             
         while t <= self.num_evals:
-            polygon_i = np.random.choice(array(self.canvas.sequence),p=probabilities)
+            indx, polygon_i = np.random.choice(list(enumerate(self.canvas.sequence)),p=probabilities)
                 
             self.canvas, new = polygon_mutate(self.canvas,polygon_i)
             
-            #TODO: SCORE
-            l_base = float(1)
-            l_new = float(1)
+            # compute the loss of the new iteration with the parent
+            l_base = self.eval_loss(self.canvas.image())
+            l_new = self.eval_loss(new)
             
+            # compare the child with the parent
             if l_new < l_base:
                 
-                self.counter = 0
+                counter = 0
             else:
                 
                 new = polygon_i
-                self.counter +=1
+                counter +=1
                     
             t += 1
             
-            # NOTE: CHECK THIS 
-            if (self.counter > self.max_iterations) and (self.canvas.how_many < self.max_generations):
+            if (counter > self.max_iterations) and (self.canvas.how_many() < self.max_generations):
                     
                 if l_new < v_k:
                     polygon_i1 = polygon_init(id=self.canvas.how_many())
                     
                     self.canvas = add_polygon(canvas=self.canvas, 
                                               polygon=polygon_i1)
-            
+                    counter = 0
                     probabilities = self.mk_probabilities()
                 else:
                     
-                    self.counter += 1
+                    # reinit polygon
+                    self.canvas.sequence[indx]  = polygon_init(id=self.canvas.how_many()) 
+                    counter += 1
                     
-            if (self.counter > self.max_iterations) and (self.canvas.how_many() == self.max_generations):
+            if (counter > self.max_iterations) and (self.canvas.how_many() == self.max_generations):
                 # Once we reach the maximum number of generations, now we can send the rest of our cycles optimizing all polygons
                 probabilities = [1/self.max_generations]*self.max_generations
 
