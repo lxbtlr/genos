@@ -1,6 +1,6 @@
 from src.custom_types import Solution, Vertex, RGBA, Canvas
 from src.reconstruction import polygon_init, polygon_mutate 
-from src.visualize import add_polygon
+from src.visualize import add_polygon, visualize_canvas
 from src.loss import sad
 from numpy import array
 import numpy as np
@@ -33,9 +33,11 @@ class Simulation():
         # Derived class variables
         #TODO: make these defined by the base image
         self.height,self.width    =  self.base_image.shape        
-        self.canvas = Canvas(list())
+        
+        self.counter = 0
+        self.create_polygon()
 
-    def mk_probabilities(self,):
+    def update_probabilities(self,):
         """
         Choose a polygon to mutate weighted by the sequence probabilities
         """
@@ -46,13 +48,73 @@ class Simulation():
             
         # Normalize the probabilities to 1
         n_probabilities = probabilities / np.sum(probabilities)
-        return
+        
+        self.probabilities = n_probabilities
+        return n_probabilities
+
+    def norm_opti_probs(self,):
+        """
+        Create a uniform distribution with mg elements, where mg is the max 
+        generations / max number of polygons 
+        """
+        self.probabilities = [1/self.max_generations]*self.max_generations
+        return self.probabilities
 
     def eval_loss(self, image):
         """
         Evaluate an image to the base_image and return the SAD
         """
         return sad(self.base_image, image)
+
+    def cc_loss(self,):
+        """
+        Compute and compare loss
+        param
+            child - 
+
+        return
+            float - base loss
+            float - child loss
+        """
+        
+        # compute the loss of the child iteration with the parent
+        l_parent = self.eval_loss(self.canvas.image())
+        l_child = self.eval_loss(self.child)
+        
+        # compare loss
+        if l_child < l_parent:
+            
+            self.counter = 0
+        else:
+            
+            self.child = self.polygon_i
+            self.counter +=1
+        
+        return l_parent, l_child
+
+    def select(self,):
+        """
+        Using probabilities, randomly select and return a polygon from the 
+        canvas sequence and its index
+        """
+        indx, self.polygon_i = np.random.choice(
+                list(enumerate(self.canvas.sequence)),
+                p=self.probabilities)
+            
+        return indx, self.polygon_i
+
+    def create_polygon(self,):
+        """
+        Create polygon and add it to the canvas
+        """
+        
+        self.canvas = add_polygon(canvas=self.canvas, 
+                                  polygon=polygon_init(
+                                      id=self.canvas.how_many()))
+            
+        self.counter = 0
+        self.update_probabilities()
+        return
 
     def run(self,):
         """
@@ -61,56 +123,39 @@ class Simulation():
         
         # initialize vars
         t= 0
-        counter = 0
         
-        # Create a new random polygon & add it to the canvas
-        self.canvas = add_polygon(self.canvas,
-                                  polygon_init(id=self.canvas.how_many()))
-        probabilities = self.mk_probabilities()
-     
         # get loss of current solution
         v_k = self.eval_loss(self.canvas.image()) 
             
         while t <= self.num_evals:
-            indx, polygon_i = np.random.choice(list(enumerate(self.canvas.sequence)),p=probabilities)
-                
-            self.canvas, new = polygon_mutate(self.canvas,polygon_i)
+            # TODO: make this a method
+            indx, self.polygon_i = self.select()
             
-            # compute the loss of the new iteration with the parent
-            l_base = self.eval_loss(self.canvas.image())
-            l_new = self.eval_loss(new)
+            self.canvas, self.child = polygon_mutate(self.canvas,self.polygon_i)
             
-            # compare the child with the parent
-            if l_new < l_base:
+            # compare and compute the child with the parent loss
+            l_child, l_parent = self.cc_loss()
                 
-                counter = 0
-            else:
-                
-                new = polygon_i
-                counter +=1
-                    
             t += 1
             
-            if (counter > self.max_iterations) and (self.canvas.how_many() < self.max_generations):
+            if (self.counter > self.max_iterations) and (self.canvas.how_many() < self.max_generations):
                     
-                if l_new < v_k:
-                    polygon_i1 = polygon_init(id=self.canvas.how_many())
-                    
-                    self.canvas = add_polygon(canvas=self.canvas, 
-                                              polygon=polygon_i1)
-                    counter = 0
-                    probabilities = self.mk_probabilities()
+                if l_child < v_k:
+                    self.create_polygon()
                 else:
                     
                     # reinit polygon
-                    self.canvas.sequence[indx]  = polygon_init(id=self.canvas.how_many()) 
-                    counter += 1
+                    # TODO: make this a method
+                    self.canvas.sequence[indx] = polygon_init(id=self.canvas.how_many()) 
+                    self.counter += 1
                     
-            if (counter > self.max_iterations) and (self.canvas.how_many() == self.max_generations):
+            if (self.counter > self.max_iterations) and (self.canvas.how_many() == self.max_generations):
                 # Once we reach the maximum number of generations, now we can send the rest of our cycles optimizing all polygons
-                probabilities = [1/self.max_generations]*self.max_generations
-
+                self.norm_opti_probs()            
+            # TODO: incorporate logging at end of loop cycle to track sim status
 
     def get_results(self,):
-        
-        pass
+        """
+        Save the results of the simulation to disk
+        """
+        return visualize_canvas(self.canvas)
