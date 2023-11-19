@@ -3,6 +3,7 @@ from src.reconstruction import polygon_init, polygon_mutate
 from src.visualize import add_polygon, visualize_canvas
 from src.loss import sad
 from numpy import array
+from copy import copy, deepcopy
 import numpy as np
 
 class Simulation():
@@ -33,9 +34,11 @@ class Simulation():
         # Derived class variables
         #TODO: make these defined by the base image
         self.height,self.width    =  self.base_image.shape        
-        
+        self.canvas = Canvas(list())
         self.counter = 0
-        self.create_polygon()
+        
+        self.canvas = self.create_polygon(self.canvas)
+        
 
     def update_probabilities(self,):
         """
@@ -66,20 +69,14 @@ class Simulation():
         """
         return sad(self.base_image, image)
 
-    def cc_loss(self,):
+    def cc_loss(self,parent, child):
         """
         Compute and compare loss
-        param
-            child - 
-
-        return
-            float - base loss
-            float - child loss
         """
         
         # compute the loss of the child iteration with the parent
-        l_parent = self.eval_loss(self.canvas.image())
-        l_child = self.eval_loss(self.child)
+        l_parent = self.eval_loss(parent)
+        l_child = self.eval_loss(child)
         
         # compare loss
         if l_child < l_parent:
@@ -87,7 +84,6 @@ class Simulation():
             self.counter = 0
         else:
             
-            self.child = self.polygon_i
             self.counter +=1
         
         return l_parent, l_child
@@ -103,18 +99,18 @@ class Simulation():
             
         return indx, self.polygon_i
 
-    def create_polygon(self,):
+    def create_polygon(self,c:Canvas):
         """
         Create polygon and add it to the canvas
         """
         
-        self.canvas = add_polygon(canvas=self.canvas, 
-                                  polygon=polygon_init(
-                                      id=self.canvas.how_many()))
+        c = add_polygon(canvas=c, 
+                        polygon=polygon_init(
+                            id=self.canvas.how_many()))
             
         self.counter = 0
         self.update_probabilities()
-        return
+        return c
 
     def run(self,):
         """
@@ -124,33 +120,45 @@ class Simulation():
         # initialize vars
         t= 0
         
+        newer_solution = None
+        older_solution = None
         # get loss of current solution
         v_k = self.eval_loss(self.canvas.image()) 
             
         while t <= self.num_evals:
             # TODO: make this a method
             indx, self.polygon_i = self.select()
-            
-            self.canvas, self.child = polygon_mutate(self.canvas,self.polygon_i)
+
+            # use temporary variables to store previous and current solutions 
+            older_solution = copy(self.canvas)
+            newer_solution, child = polygon_mutate(self.canvas,self.polygon_i)
             
             # compare and compute the child with the parent loss
-            l_child, l_parent = self.cc_loss()
+            l_parent, l_child = self.cc_loss(older_solution, newer_solution)
                 
             t += 1
             
             if (self.counter > self.max_iterations) and (self.canvas.how_many() < self.max_generations):
                     
                 if l_child < v_k:
-                    self.create_polygon()
+                    # update the canvas to the improved version
+                    self.canvas = self.create_polygon(newer_solution)
+                    
+                    v_k = l_child
+                    self.counter = 0
                 else:
                     
                     # reinit polygon
                     # TODO: make this a method
+                    self.canvas = older_solution
+                    
+                    #TODO: not sure if this is necessary
                     self.canvas.sequence[indx] = polygon_init(id=self.canvas.how_many()) 
                     self.counter += 1
                     
             if (self.counter > self.max_iterations) and (self.canvas.how_many() == self.max_generations):
                 # Once we reach the maximum number of generations, now we can send the rest of our cycles optimizing all polygons
+                    
                 self.norm_opti_probs()            
             # TODO: incorporate logging at end of loop cycle to track sim status
 
@@ -159,3 +167,4 @@ class Simulation():
         Save the results of the simulation to disk
         """
         return visualize_canvas(self.canvas)
+
