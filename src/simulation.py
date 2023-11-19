@@ -23,15 +23,14 @@ class Simulation:
             - Number Verticies
         """
 
-        self.base_image: np.ndarray = kwargs.get("b_image", array([]))
+        self.base_image = kwargs.get("b_image")
         self.output_image = kwargs.get("o_image")
         self.max_generations: int = kwargs.get("m_gen", 10)
         self.max_iterations: int = kwargs.get("m_iter", 10)
         self.stagnation_limit: int = kwargs.get("stag_lim", 10)
         self.n_verticies: int = kwargs.get("n_vert", 3)
-        self.num_evals: int = kwargs.get(
-            "n_evals", 50000
-        )  # NOTE: this value is from the paper
+        self.num_evals: int = kwargs.get("n_evals", 50000)
+        # NOTE: this value is from the paper
 
         # Derived class variables
         self.height, self.width = self.base_image.shape
@@ -53,7 +52,6 @@ class Simulation:
 
         # Normalize the probabilities to 1
         n_probabilities = probabilities / np.sum(probabilities)
-
         self.probabilities = n_probabilities
         return n_probabilities
 
@@ -169,7 +167,6 @@ class Simulation:
             ):
                 # Once we reach the maximum number of generations, now we can
                 # send the rest of our cycles optimizing all polygons
-
                 self.norm_opti_probs()
             # TODO: incorporate logging at end of loop cycle to track sim status
 
@@ -180,3 +177,57 @@ class Simulation:
         Save the results of the simulation to disk
         """
         return visualize_canvas(self.canvas)
+
+
+def get_energy_map(source: np.ndarray, recon: np.ndarray) -> np.ndarray:
+    """
+    Computes the energy map.
+
+    Args:
+        source (np.ndarray): Source image as ndarray.
+        recon (np.ndarray): Reconstructed image as ndarray.
+
+    Returns:
+        np.ndarray: Supplementary matrix of cumulative energy values of each
+        pixel.
+    """
+    # Compute for total difference
+    cumulative_e = np.sum(np.absolute(source - recon))
+
+    # Compute for pixel-wise probability
+    pixel_e = 0
+    for channel in [0, 1, 2]:
+        pixel_e += np.absolute(source[:, :, channel] - recon[:, :, channel])
+
+    prob_matrix = pixel_e / cumulative_e
+
+    # Supplementary matrix is the cumulative sum of probabilities
+    supp_matrix = prob_matrix.cumsum().reshape(source.shape[:2])
+
+    return supp_matrix
+
+
+def vertices_em(source: np.ndarray, recon: np.ndarray, n_vertices: int = 3) -> Vertex:
+    """
+
+    Args:
+        source (np.ndarray): Source image as ndarray.
+        recon (np.ndarray): Reconstructed image as ndarray.
+        n_vertices (int): Number of vertices. Defaults to
+
+    Returns:
+        Vertex: A set of vertices chosen based on the energy map.
+    """
+    matrix = get_energy_map(source, recon)
+    x = []
+    y = []
+    for _ in range(n_vertices):
+        threshold = np.random.rand()
+        raw_index = np.argmax(matrix > threshold)
+        print(raw_index)
+        x_new = raw_index // source.shape[0]
+        y_new = raw_index % source.shape[1]
+        x.append(x_new)
+        y.append(y_new)
+
+    return Vertex(np.array(x), np.array(y))
