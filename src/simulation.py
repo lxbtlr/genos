@@ -122,7 +122,7 @@ class Simulation:
         # initialize vars
         t = 0
 
-        generations = []
+        generations = [self.canvas]
 
         newer_solution = None
         older_solution = None
