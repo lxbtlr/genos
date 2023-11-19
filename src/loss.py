@@ -1,4 +1,4 @@
-from numpy import ndarray, absolute, count_nonzero, zeros, ones
+from numpy import ndarray, absolute, count_nonzero, zeros, ones, sum
 import matplotlib.pyplot as plt
 import matplotlib.image as img
 
@@ -15,7 +15,27 @@ def image_diff(image1:ndarray, image2:ndarray)->float:
 
     return percentage
 
-def complete_percent(base_image:ndarray,comp_image:ndarray)->float:
+def sad(image1:ndarray, image2:ndarray):
+    """
+    Sum of all absolute pixel differences into one value, as defined in the paper
+    
+    img1= [[1,2,3],
+           [4,5,6],
+           [7,8,9]]
+
+    img1= [[9,8,7],
+           [6,5,4],
+           [3,2,1]]
+
+    out = sum([sum(absolute(image1[pos]-image2[pos])) 
+               for pos in range(len(img1))]
+    """
+    
+    diff = absolute(image1.ravel() - image2.ravel())
+
+    return sum(diff)/diff.shape[0]
+
+def complete_percent(base_image:ndarray,comp_image:ndarray,l_func=sad)->float:
     """
     Compute the complete percentage loss metric
     
@@ -23,25 +43,44 @@ def complete_percent(base_image:ndarray,comp_image:ndarray)->float:
     and the canvas, minus the loss of the comparison and base images, normalized
     as a percentage. 
     """
+        
     blank  = zeros(base_image.shape)
-    max_l  = image_diff(base_image, blank)
-
+    print(blank.shape)
+    max_l  = l_func(base_image, blank)
+    
     if max_l == 0:
         raise Exception("The images provided are identical,\npreventing divide by 0 error")
-    l_best = image_diff(base_image, comp_image)
-
-    return ((max_l - l_best) / max_l) * 100
+    l_best = l_func(base_image, comp_image)
+    print(f"Complete Loss: {l_func.__name__}")
+    print(f"max_diff: {max_l}")
+    print(f"l_best: {l_best}")
+    
+    return (absolute(max_l - l_best) / max_l) * 100
 
 
 if __name__ == "__main__":
     # test case of comparing two images
     one = img.imread("../img/1.png")
+    diamond = img.imread("../img/diamond.png")
     b = zeros(one.shape)
     w = ones(one.shape)
     
     print(one.shape)
+    print("ORIGINAL INTERPRETATION")
+    print("absdiff of:\n\twhite, black:",complete_percent(w,b,image_diff))
+    print("absdiff of:\n\twhite, 1.png",complete_percent(w,one,image_diff))
+    print("absdiff of:\n\tblack, diamond.png",complete_percent(diamond,zeros(diamond.shape),image_diff))
+    print("absdiff of:\n\twhite, diamond.png",complete_percent(diamond,ones(diamond.shape), image_diff))
+    
+    print("PAPER LOSS FUNCTION")
     print("absdiff of:\n\twhite, black:",complete_percent(w,b))
-    print("absdiff of:\n\twhite, g.png",complete_percent(w,one))
+    print("absdiff of:\n\twhite, 1.png",complete_percent(w,one))
+    print("absdiff of:\n\tblack, diamond.png",complete_percent(diamond,zeros(diamond.shape)))
+    print("absdiff of:\n\twhite, diamond.png",complete_percent(diamond,ones(diamond.shape),))
+    
+    print("SAD")
+    print("absdiff of:\n\twhite, diamond.png",complete_percent(diamond,ones(diamond.shape),sad))
+    print("absdiff of:\n\tblack, diamond.png",complete_percent(diamond,zeros(diamond.shape),sad)) 
 
 
 
