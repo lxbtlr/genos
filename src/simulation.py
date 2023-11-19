@@ -1,14 +1,14 @@
 from src.custom_types import Solution, Vertex, RGBA, Canvas
-from src.reconstruction import polygon_init, polygon_mutate 
+from src.reconstruction import polygon_init, polygon_mutate
 from src.visualize import add_polygon, visualize_canvas
 from src.loss import sad
 from numpy import array
 from copy import copy, deepcopy
 import numpy as np
 
-class Simulation():
 
-    def __init__(self,**kwargs):
+class Simulation:
+    def __init__(self, **kwargs):
         """
         Init simulation.
         Keywords:
@@ -22,45 +22,49 @@ class Simulation():
             - Width
             - Number Verticies
         """
-        
-        self.base_image:np.ndarray= kwargs.get("b_image",array([]))
-        self.output_image         = kwargs.get("o_image")
-        self.max_generations:int  = kwargs.get("m_gen",10)
-        self.max_iterations:int   = kwargs.get("m_iter",10)
-        self.stagnation_limit:int = kwargs.get("stag_lim",10)
-        self.n_verticies:int      = kwargs.get("n_vert",3)
-        self.num_evals:int        = kwargs.get("n_evals",50000) # NOTE: this value is from the paper
-        
+
+        self.base_image: np.ndarray = kwargs.get("b_image", array([]))
+        self.output_image = kwargs.get("o_image")
+        self.max_generations: int = kwargs.get("m_gen", 10)
+        self.max_iterations: int = kwargs.get("m_iter", 10)
+        self.stagnation_limit: int = kwargs.get("stag_lim", 10)
+        self.n_verticies: int = kwargs.get("n_vert", 3)
+        self.num_evals: int = kwargs.get(
+            "n_evals", 50000
+        )  # NOTE: this value is from the paper
+
         # Derived class variables
-        #TODO: make these defined by the base image
-        self.height,self.width    =  self.base_image.shape        
+        self.height, self.width = self.base_image.shape
         self.canvas = Canvas(list())
         self.counter = 0
-        
-        self.canvas = self.create_polygon(self.canvas)
-        
 
-    def update_probabilities(self,):
+        self.canvas = self.create_polygon(self.canvas)
+
+    def update_probabilities(
+        self,
+    ):
         """
         Choose a polygon to mutate weighted by the sequence probabilities
         """
         num = self.canvas.how_many()
 
         # Generate Geometric series of probabilities for the sequence
-        probabilities = array([1/(2**(1+x)) for x in range(num)])
-            
+        probabilities = array([1 / (2 ** (1 + x)) for x in range(num)])
+
         # Normalize the probabilities to 1
         n_probabilities = probabilities / np.sum(probabilities)
-        
+
         self.probabilities = n_probabilities
         return n_probabilities
 
-    def norm_opti_probs(self,):
+    def norm_opti_probs(
+        self,
+    ):
         """
-        Create a uniform distribution with mg elements, where mg is the max 
-        generations / max number of polygons 
+        Create a uniform distribution with mg elements, where mg is the max
+        generations / max number of polygons
         """
-        self.probabilities = [1/self.max_generations]*self.max_generations
+        self.probabilities = [1 / self.max_generations] * self.max_generations
         return self.probabilities
 
     def eval_loss(self, image):
@@ -69,102 +73,110 @@ class Simulation():
         """
         return sad(self.base_image, image)
 
-    def cc_loss(self,parent, child):
+    def cc_loss(self, parent, child):
         """
         Compute and compare loss
         """
-        
+
         # compute the loss of the child iteration with the parent
         l_parent = self.eval_loss(parent)
         l_child = self.eval_loss(child)
-        
+
         # compare loss
         if l_child < l_parent:
-            
             self.counter = 0
         else:
-            
-            self.counter +=1
-        
+            self.counter += 1
+
         return l_parent, l_child
 
-    def select(self,):
+    def select(
+        self,
+    ):
         """
-        Using probabilities, randomly select and return a polygon from the 
+        Using probabilities, randomly select and return a polygon from the
         canvas sequence and its index
         """
         indx, self.polygon_i = np.random.choice(
-                list(enumerate(self.canvas.sequence)),
-                p=self.probabilities)
-            
+            list(enumerate(self.canvas.sequence)), p=self.probabilities
+        )
+
         return indx, self.polygon_i
 
-    def create_polygon(self,c:Canvas):
+    def create_polygon(self, c: Canvas):
         """
         Create polygon and add it to the canvas
         """
-        
-        c = add_polygon(canvas=c, 
-                        polygon=polygon_init(
-                            id=self.canvas.how_many()))
-            
+
+        c = add_polygon(canvas=c, polygon=polygon_init(id=self.canvas.how_many()))
+
         self.counter = 0
         self.update_probabilities()
         return c
 
-    def run(self,):
+    def run(
+        self,
+    ):
         """
         Run the simulation until completion.
         """
-        
+
         # initialize vars
-        t= 0
-        
+        t = 0
+
+        generations = []
+
         newer_solution = None
         older_solution = None
         # get loss of current solution
-        v_k = self.eval_loss(self.canvas.image()) 
-            
+        v_k = self.eval_loss(self.canvas.image())
+
         while t <= self.num_evals:
             # TODO: make this a method
-            indx, self.polygon_i = self.select()
+            _indx, self.polygon_i = self.select()
 
-            # use temporary variables to store previous and current solutions 
+            # use temporary variables to store previous and current solutions
             older_solution = copy(self.canvas)
-            newer_solution, child = polygon_mutate(self.canvas,self.polygon_i)
-            
+            newer_solution, child = polygon_mutate(self.canvas, self.polygon_i)
+
             # compare and compute the child with the parent loss
             l_parent, l_child = self.cc_loss(older_solution, newer_solution)
-                
+
             t += 1
-            
-            if (self.counter > self.max_iterations) and (self.canvas.how_many() < self.max_generations):
-                    
+
+            if (self.counter > self.max_iterations) and (
+                self.canvas.how_many() < self.max_generations
+            ):
                 if l_child < v_k:
                     # update the canvas to the improved version
+                    generations.append(deepcopy(self.canvas))
                     self.canvas = self.create_polygon(newer_solution)
-                    
+
                     v_k = l_child
                     self.counter = 0
                 else:
-                    
                     # reinit polygon
-                    # TODO: make this a method
-                    self.canvas = older_solution
-                    
-                    #TODO: not sure if this is necessary
-                    self.canvas.sequence[indx] = polygon_init(id=self.canvas.how_many()) 
+                    #  This is attempting to perform a rollback
+                    self.canvas = generations[-1]
+                    # reinitializing a polygon onto the canvas
+                    self.canvas = self.create_polygon(self.canvas)
+
+                    # keep pushing the counter up
                     self.counter += 1
-                    
-            if (self.counter > self.max_iterations) and (self.canvas.how_many() == self.max_generations):
-                # Once we reach the maximum number of generations, now we can send the rest of our cycles optimizing all polygons
-                    
-                self.norm_opti_probs()            
+
+            if (self.counter > self.max_iterations) and (
+                self.canvas.how_many() == self.max_generations
+            ):
+                # Once we reach the maximum number of generations, now we can
+                # send the rest of our cycles optimizing all polygons
+
+                self.norm_opti_probs()
             # TODO: incorporate logging at end of loop cycle to track sim status
 
-    def get_results(self,):
+    def get_results(
+        self,
+    ):
         """
         Save the results of the simulation to disk
         """
         return visualize_canvas(self.canvas)
-
