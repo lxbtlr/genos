@@ -3,22 +3,13 @@ from src.reconstruction import polygon_init, polygon_mutate
 from src.visualize import add_polygon, visualize_canvas
 from src.loss import sad
 from copy import copy, deepcopy
+import log_trace
 import logging
 from numpy import array
 import numpy as np
 
 
-log_format = "%(asctime)s :: %(name)s :: %(module)s :: %(levelname)s :: %(message)s"
-
-logger = logging.getLogger(__name__)
-logger.setLevel("DEBUG")
-
-# TODO: reconcile simulation logs into folders
-file_handler = logging.FileHandler(filename="simulation.log", mode="a")
-logger.addHandler(file_handler)
-
-formatter = logging.Formatter(log_format)
-file_handler.setFormatter(formatter)
+logger = log_trace.setup_logger()
 
 
 class Simulation:

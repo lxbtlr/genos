@@ -1,16 +1,8 @@
 from argparse import ArgumentParser
+import log_trace
 import logging
 
-log_format = "%(asctime)s :: %(name)s :: %(module)s :: %(levelname)s :: %(message)s"
-
-logger = logging.getLogger(__name__)
-logger.setLevel("DEBUG")
-
-file_handler = logging.FileHandler(filename="simulation.log", mode="a")
-logger.addHandler(file_handler)
-
-formatter = logging.Formatter(log_format)
-file_handler.setFormatter(formatter)
+logger = log_trace.setup_logger()
 
 parser = ArgumentParser(
     description="A Progressive Hill Climbing Image Reconstruction Script"

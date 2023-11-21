@@ -1,9 +1,14 @@
 import numpy as np
 from matplotlib.patches import Polygon
 from src.custom_types import Canvas, Solution, Vertex, RGBA
+import log_trace
+import logging
 
 DIMS = (64, 64)
 N_VERTICES_TRI = 3
+
+
+logger = log_trace.setup_logger()
 
 
 def polygon_init(
@@ -39,9 +44,7 @@ def polygon_init(
     return solution
 
 
-def polygon_mutate(
-    canvas: Canvas, polygon: Solution
-) -> tuple[Canvas, Solution]:
+def polygon_mutate(canvas: Canvas, polygon: Solution) -> tuple[Canvas, Solution]:
     """
     Mutate a Polygon object.
 
@@ -74,9 +77,7 @@ def polygon_mutate(
     return canvas, polygon
 
 
-def mutate_vertex(
-    polygon: Solution, bounds: tuple[int, int] = DIMS
-) -> Solution:
+def mutate_vertex(polygon: Solution, bounds: tuple[int, int] = DIMS) -> Solution:
     """
     Mutate a vertex of a Solution object.
 
@@ -99,9 +100,7 @@ def mutate_vertex(
         mode = np.random.randint(2)
         if mode:
             # Mutate by a scaled increment
-            increment = check_bound(
-                np.random.randint(0.1 * bound), value, bound
-            )
+            increment = check_bound(np.random.randint(0.1 * bound), value, bound)
             value += increment
         else:
             # Mutate by a number in bound
