@@ -16,6 +16,7 @@ in mkShell {
       ps.numpy
       ps.scipy
       ps.matplotlib
+      ps.pyyaml
     ]))
   ];
 }
