@@ -15,14 +15,15 @@ parser.add_argument(
 )
 
 # NOTE: could also look at implementing HSBA too
-parser.add_argument(
-    "-c",
-    "--color-mode",
-    type=str,
-    choices=["GRAY", "RGBA"],
-    default="GRAY",
-    help="Specify the color-mode that will be used",
-)
+
+# parser.add_argument(
+#     "-c",
+#     "--color-mode",
+#     type=str,
+#     choices=["GRAY", "RGBA"],
+#     default="GRAY",
+#     help="Specify the color-mode that will be used",
+# )
 
 parser.add_argument(
     "-g",
@@ -33,7 +34,11 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "-i", "--max-iterations", type=int, default=10, help="Maximum number of iterations"
+    "-i",
+    "--max-evaluations",
+    type=int,
+    default=50000,
+    help="Maximum number of simulation evaluations",
 )
 
 parser.add_argument(
@@ -41,7 +46,7 @@ parser.add_argument(
     "--stagnation-limit",
     type=int,
     default=100,
-    help="Max number of iterations allowed for stagnated solutions",
+    help="Max number of iterations allowed before considered solutions are stagnant",
 )
 
 parser.add_argument(
@@ -50,6 +55,12 @@ parser.add_argument(
 
 args = parser.parse_args()
 
-logger.info(args)
+logger.debug(
+    f"""Max Generations: {args.max_generations}
+Max Evaluations: {args.max_evaluations}
+Stagnation Limits: {args.stagnation_limit}
+Debug State: {args.debug}"""
+)
+
 # HACK: this allows for global flags to be passed onto other files
 FLAGS = {"debug": args.debug, "axis": args.axis}

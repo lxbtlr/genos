@@ -59,7 +59,7 @@ class Simulation:
         # Normalize the probabilities to 1
         n_probabilities = probabilities / np.sum(probabilities)
         self.probabilities = n_probabilities
-        logger.info(f"{self.probabilities}")
+        logger.debug(f"{self.probabilities}")
         return n_probabilities
 
     def norm_opti_probs(
@@ -70,7 +70,7 @@ class Simulation:
         generations / max number of polygons
         """
         self.probabilities = [1 / self.max_generations] * self.max_generations
-        logger.info("Probabilities Normalized")
+        logger.debug("Probabilities Normalized")
         return self.probabilities
 
     def eval_loss(self, image):
@@ -89,7 +89,7 @@ class Simulation:
         l_parent = self.eval_loss(parent)
         l_child = self.eval_loss(child)
 
-        logger.info(f"parent: {l_parent} | child: {l_child}")
+        logger.debug(f"parent: {l_parent} | child: {l_child}")
         # compare loss
         if l_child < l_parent:
             self.counter = 0
@@ -108,7 +108,7 @@ class Simulation:
         indx, self.polygon_i = np.random.choice(
             list(enumerate(self.canvas.sequence)), p=self.probabilities
         )
-        logger.info(f"Polygon {indx} in sequence selected")
+        logger.debug(f"Polygon {indx} in sequence selected")
         return indx, self.polygon_i
 
     def create_polygon(self, c: Canvas):
@@ -246,12 +246,12 @@ def vertices_em(source: np.ndarray, recon: np.ndarray, n_vertices: int = 3) -> V
         raw_index = np.argmax(matrix > threshold)
 
         # TODO: check if this is relevant in final logs
-        logger.info(f"Raw Index: {raw_index}")
+        logger.debug(f"Raw Index: {raw_index}")
         x_new = raw_index // source.shape[0]
         y_new = raw_index % source.shape[1]
         x.append(x_new)
         y.append(y_new)
-    logger.info("Energy Mapping finished")
+    logger.debug("Energy Mapping finished")
     point = Vertex(np.array(x), np.array(y))
-    logger.info(point)
+    logger.debug(point)
     return point
