@@ -5,6 +5,60 @@ This project aims to implement meta-heuristic search algorithm for image reconst
 1. Polygons used for image reconstruction is _progressively_ added per generation rather than all at once.
 2. Re/initialization of polygons uses energy map as a _meta-heuristic_.
 
+# Installation
+
+To install, clone this repository and install its dependencies.
+
+```
+git clone https://github.com/olincollege/scicomp-p3-genos.git
+```
+
+## Dependencies:
+There are a few dependencies for this project that need to be installed for the code to function.
+- Python 3.10+
+- Python Libraries:
+    ```
+    matplotlib
+    numpy
+    ```
+- (Optional) dependencies for other features:
+    ```
+    TODO / TBA
+    ```
+
+### Nix
+Installing these libraies through your prefered method is fine -- I personally use nix :snowflake: to create a nix shell environment to load all dependencies easily from the default.nix file using the command:
+```
+nix-shell default.nix
+```
+
+# Usage (Needs to be fleshed out)
+
+This algoritm is _very_ memory intensive, even with small images (256x256) and takes a long time to generate even on powerful hardware.
+
+The referenced paper uses a "workstation powered by two Intel Xeon Gold 5218R CPUs with 64 GB memory," benchmarks for the implementation of the ProHC-EM algorithm taking about 12 minutes to generate a single output image.
+
+## Running Locally
+There are many arguments that can be passed into the script to modify the output
+of the code. However, to run the default/unchanged version you only need to run:
+```
+python model.py
+```
+
+To learn more about the arguments that can be passed into this model, run:
+```
+python model.py -h
+```
+
+To see more of the step by step processing that is going on under the hood, pass the debug
+flag (as shown below) to toggle some print statements. To make the output more understandable I
+would recommend starting with a low number of ants.
+```
+TODO / TBA
+python model.py --debug
+```
+
+
 # Procedure
 
 For executing the reconstruction, we need to provide the following parameters:
@@ -109,7 +163,7 @@ Lastly, the selected polygon's sequence may be swapped with another random polyg
 
 ## Fitness Score
 
-The fitness score will be a pixel-wise comparison between the original image and the reconstructed image. More specifically, we will sum the absolute differences between the images across RGB channels for each pixel.  
+The fitness score will be a pixel-wise comparison between the original image and the reconstructed image. More specifically, we will sum the absolute differences between the images across RGB channels for each pixel.
 Let $X$ and $Y$ be the original image and the reconstructed image. Then, the loss function is calculated as follows:
 
 $$
