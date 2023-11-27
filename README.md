@@ -1,6 +1,6 @@
 # Introduction
 
-This project aims to implement meta-heuristic search algorithm for image reconstruction outlined in Zhang, Y.; Wei, W.; Wang, Z. "Progressive Learning Hill Climbing Algorithm with Energy-Map-Based Initialization for Image Reconstruction" 2023 paper. There are two main differences between the traditional hill climbing algorithm and the novel algorithm:
+This project aims to implement meta-heuristic search algorithm for image reconstruction outlined in [Zhang, Y.; Wei, W.; Wang, Z. "Progressive Learning Hill Climbing Algorithm with Energy-Map-Based Initialization for Image Reconstruction" 2023 paper](https://doi.org/10.3390/biomimetics8020174). There are two main differences between the traditional hill climbing algorithm and the novel algorithm:
 
 1. Polygons used for image reconstruction is _progressively_ added per generation rather than all at once.
 2. Re/initialization of polygons uses energy map as a _meta-heuristic_.
@@ -34,9 +34,10 @@ nix-shell default.nix
 
 # Usage (Needs to be fleshed out)
 
-This algoritm is _very_ memory intensive, even with small images (256x256) and takes a long time to generate even on powerful hardware.
+This algoritm is _very_ memory intensive, even with small images (256x256) and takes a long time to generate even on powerful hardware. The referenced paper uses a "workstation powered by two Intel Xeon Gold 5218R CPUs with 64 GB memory," benchmarks for the implementation of the ProHC-EM algorithm taking about 12 minutes to generate a single output image.
 
-The referenced paper uses a "workstation powered by two Intel Xeon Gold 5218R CPUs with 64 GB memory," benchmarks for the implementation of the ProHC-EM algorithm taking about 12 minutes to generate a single output image.
+Due to local hardware constraints, we used a remote computing cluster to generate our more computationally complex outputs. Our `runner_script.sh` file is an artifact of this.
+
 
 ## Running Locally
 There are many arguments that can be passed into the script to modify the output
@@ -51,8 +52,8 @@ python model.py -h
 ```
 
 To see more of the step by step processing that is going on under the hood, pass the debug
-flag (as shown below) to toggle some print statements. To make the output more understandable I
-would recommend starting with a low number of ants.
+flag (as shown below) to toggle what information is passed to the output logfiles. To make the output more understandable I
+would recommend starting with a low complexity set up.
 ```
 TODO / TBA
 python model.py --debug
@@ -210,3 +211,14 @@ $mx_{i,j}$ is an element in the matrix $MX$, which shows
 The first term computes the cumulative probability of selecting position $(1, 1), (1, 2), ..., (1, H), ..., (2, H), ..., (i-1, H)$. The second term computes the cumulative probability of selecting position $(i,1), (i, 2), ..., (i, j)$.
 
 > When sampling a new vertex, a random real value r whin [0, 1] is generated. Then, one retrieves the first element mxi,j in matrix MX whose value is larger than r. The coordinate (i, j) is selected as the position of the new vertex. All vertices of the new polygon are determined in the same manner. In this way, there is a higher probability that the new polygon is placed on the most critical regions. With the energy-map-based operator, ProHC-EM (ProHC with an energy map) can avoid wasting effort on low-energy regions and further increase the search efficiency.
+
+## Logging
+
+The ProHC-EM algorithm is complex to implement and even more difficult to debug. Another complexity is the fact we ran this project in a remote headless environment. To tackle both of these problems, we opted to create and use a custom logger handler. This logger is initiated in each file and records debug / info information for us into a centralized log file.
+
+INSERT example logfile here
+
+
+
+
+
