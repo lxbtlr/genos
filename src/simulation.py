@@ -14,11 +14,9 @@ class Simulation:
         Keywords:
             - Base image
             - Output image
-            - Max generations
+            - Max generations / polygons
             - Stagnation limit
             - Number evaluations
-            - Height
-            - Width
             - Number Verticies
         """
 
@@ -60,7 +58,7 @@ class Simulation:
         Create a uniform distribution with mg elements, where mg is the max
         generations / max number of polygons
         """
-        self.probabilities = [1 / self.max_generations] * self.max_generations
+        self.probabilities = [1 / self.max_polygons] * self.max_polygons
         return self.probabilities
 
     def eval_loss(self, image):
