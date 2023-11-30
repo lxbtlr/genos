@@ -25,12 +25,13 @@ parser.add_argument(
 #     help="Specify the color-mode that will be used",
 # )
 
+
 parser.add_argument(
     "-g",
-    "--max-generations",
+    "--max-polygons",
     type=int,
     default=10,
-    help="Maximum number of generations",
+    help="Maximum number of generations & polygons",
 )
 
 parser.add_argument(
@@ -38,15 +39,15 @@ parser.add_argument(
     "--max-evaluations",
     type=int,
     default=50000,
-    help="Maximum number of simulation evaluations",
+    help="Maximum number of evaluations in the simulation (default=50000)",
 )
 
 parser.add_argument(
     "-s",
     "--stagnation-limit",
     type=int,
-    default=100,
-    help="Max number of iterations allowed before considered solutions are stagnant",
+    default=40,
+    help="Max number of iterations allowed before a solution is considered 'stagnate'",
 )
 
 parser.add_argument(

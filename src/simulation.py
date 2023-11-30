@@ -1,4 +1,4 @@
-from src.custom_types import Solution, Vertex, RGBA, Canvas
+from src.custom_types import Polygon, Vertex, RGBA, Canvas
 from src.reconstruction import polygon_init, polygon_mutate
 from src.visualize import add_polygon, visualize_canvas
 from src.loss import sad
@@ -19,19 +19,15 @@ class Simulation:
         Keywords:
             - Base image
             - Output image
-            - Max generations
-            - Max iterations
+            - Max generations / polygons
             - Stagnation limit
             - Number evaluations
-            - Height
-            - Width
             - Number Verticies
         """
 
         self.base_image = kwargs.get("b_image")
         self.output_image = kwargs.get("o_image")
-        self.max_generations: int = kwargs.get("m_gen", 10)
-        self.max_iterations: int = kwargs.get("m_iter", 10)
+        self.max_polygons: int = kwargs.get("m_poly", 10)
         self.stagnation_limit: int = kwargs.get("stag_lim", 10)
         self.n_verticies: int = kwargs.get("n_vert", 3)
         self.num_evals: int = kwargs.get("n_evals", 50000)
@@ -69,8 +65,7 @@ class Simulation:
         Create a uniform distribution with mg elements, where mg is the max
         generations / max number of polygons
         """
-        self.probabilities = [1 / self.max_generations] * self.max_generations
-        logger.debug("Probabilities Normalized")
+        self.probabilities = [1 / self.max_polygons] * self.max_polygons
         return self.probabilities
 
     def eval_loss(self, image):
@@ -90,12 +85,6 @@ class Simulation:
         l_child = self.eval_loss(child)
 
         logger.debug(f"parent: {l_parent} | child: {l_child}")
-        # compare loss
-        if l_child < l_parent:
-            self.counter = 0
-        else:
-            self.counter += 1
-
         return l_parent, l_child
 
     def select(
@@ -116,9 +105,9 @@ class Simulation:
         Create polygon and add it to the canvas
         """
 
-        c = add_polygon(canvas=c, polygon=polygon_init(id=self.canvas.how_many()))
+        c = add_polygon(canvas=c, polygon=polygon_init(id=c.how_many()))
 
-        self.counter = 0
+        # self.counter = 0
         self.update_probabilities()
         return c
 
@@ -141,27 +130,37 @@ class Simulation:
 
         logger.info(f"Running Simulation, baseline loss: {v_k}")
         while t <= self.num_evals:
-            # TODO: make this a method
             _indx, self.polygon_i = self.select()
 
             # use temporary variables to store previous and current solutions
-            older_solution = copy(self.canvas)
-            newer_solution, child = polygon_mutate(self.canvas, self.polygon_i)
+            older_solution = self.canvas
+            newer_solution = polygon_mutate(self.canvas, self.polygon_i)
 
             # compare and compute the child with the parent loss
             l_parent, l_child = self.cc_loss(older_solution, newer_solution)
 
+            # compare loss
+            if l_child < l_parent:
+                self.counter = 0
+                # pushing the better solution
+                self.canvas = newer_solution
+            else:
+                self.counter += 1
+                # keep the old canvas
+                self.canvas = older_solution
+
             t += 1
 
-            if (self.counter > self.max_iterations) and (
-                self.canvas.how_many() < self.max_generations
+            if (self.counter > self.stagnation_limit) and (
+                self.canvas.how_many() < self.max_polygons
             ):
                 logger.info("Stagnation counter over threshold")
                 if l_child < v_k:
                     logger.warn("Child solution improves on parent, adding new polygon")
                     # update the canvas to the improved version
+                    # FIXME: THIS NEEDS TO USE THE CORRECT VALUE
                     generations.append(deepcopy(self.canvas))
-                    self.canvas = self.create_polygon(newer_solution)
+                    self.canvas = self.create_polygon(self.canvas)
 
                     v_k = l_child
                     self.counter = 0
@@ -172,15 +171,15 @@ class Simulation:
                     )
                     # reinit polygon
                     #  This is attempting to perform a rollback
-                    self.canvas = generations[-1]
+                    previous_generation = generations[-1]
                     # reinitializing a polygon onto the canvas
-                    self.canvas = self.create_polygon(self.canvas)
+                    self.canvas = self.create_polygon(previous_generation)
 
                     # keep pushing the counter up
                     self.counter += 1
 
-            if (self.counter > self.max_iterations) and (
-                self.canvas.how_many() == self.max_generations
+            if (self.counter > self.stagnation_limit) and (
+                self.canvas.how_many() == self.max_polygons
             ):
                 logger.warn("Stagnation counter over threshold, max polygons reached")
                 # Once we reach the maximum number of generations, now we can

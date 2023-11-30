@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.collections import PatchCollection
-from src.custom_types import Canvas, Solution, Vertex, RGBA
+from src.custom_types import Canvas, Polygon, Vertex, RGBA
 
 DIMS = (64, 64)
 
@@ -21,7 +21,7 @@ def visualize_canvas(canvas: Canvas) -> None:
     plt.show()
 
 
-def add_polygon(canvas: Canvas, polygon: Solution) -> Canvas:
+def add_polygon(canvas: Canvas, polygon: Polygon) -> Canvas:
     """
     Add a polygon to the canvas
     """
@@ -33,7 +33,7 @@ if __name__ == "__main__":
     canvas = Canvas([])
 
     for i in range(10):
-        solution = Solution(
+        polygon = Polygon(
             Vertex(np.random.rand(3, 1) * DIMS[0], np.random.rand(3, 1) * DIMS[1]),
             RGBA(
                 np.random.rand(),
@@ -43,6 +43,6 @@ if __name__ == "__main__":
             ),
             _id=i,
         )
-        canvas = add_polygon(canvas, solution)
+        canvas = add_polygon(canvas, polygon)
 
     visualize_canvas(canvas)
