@@ -19,7 +19,8 @@ export PATH=/project/ct-scicomp/pythonlibs/bin:$PATH
 # export PATH=/project/ct-scicomp/find_orb_lib/find_orb:/$PATH
 
 module load python3/3.9.9
-python3 model.py # add correct args for script
+python3 model.py --max_polygons 30 --max_evaluations 50000 --stagnation_limit 50 --base_image  --output_image
+# add correct args for script
 
 
 # qsub runner_script.sh
