@@ -1,10 +1,15 @@
 import numpy as np
 from matplotlib.patches import Polygon
+import log_trace
+import logging
 from src.custom_types import Canvas, Polygon, Vertex, RGBA
 from copy import deepcopy
 
 DIMS = (64, 64)
 N_VERTICES_TRI = 3
+
+
+logger = log_trace.setup_logger()
 
 
 def polygon_init(
