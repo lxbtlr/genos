@@ -14,19 +14,15 @@ class Simulation:
         Keywords:
             - Base image
             - Output image
-            - Max generations
-            - Max iterations
+            - Max generations / polygons
             - Stagnation limit
             - Number evaluations
-            - Height
-            - Width
             - Number Verticies
         """
 
         self.base_image = kwargs.get("b_image")
         self.output_image = kwargs.get("o_image")
-        self.max_generations: int = kwargs.get("m_gen", 10)
-        self.max_iterations: int = kwargs.get("m_iter", 10)
+        self.max_polygons: int = kwargs.get("m_poly", 10)
         self.stagnation_limit: int = kwargs.get("stag_lim", 10)
         self.n_verticies: int = kwargs.get("n_vert", 3)
         self.num_evals: int = kwargs.get("n_evals", 50000)
@@ -62,7 +58,7 @@ class Simulation:
         Create a uniform distribution with mg elements, where mg is the max
         generations / max number of polygons
         """
-        self.probabilities = [1 / self.max_generations] * self.max_generations
+        self.probabilities = [1 / self.max_polygons] * self.max_polygons
         return self.probabilities
 
     def eval_loss(self, image):
@@ -145,8 +141,8 @@ class Simulation:
 
             t += 1
 
-            if (self.counter > self.max_iterations) and (
-                self.canvas.how_many() < self.max_generations
+            if (self.counter > self.stagnation_limit) and (
+                self.canvas.how_many() < self.max_polygons
             ):
                 if l_child < v_k:
                     # update the canvas to the improved version
@@ -166,8 +162,8 @@ class Simulation:
                     # keep pushing the counter up
                     self.counter += 1
 
-            if (self.counter > self.max_iterations) and (
-                self.canvas.how_many() == self.max_generations
+            if (self.counter > self.stagnation_limit) and (
+                self.canvas.how_many() == self.max_polygons
             ):
                 # Once we reach the maximum number of generations, now we can
                 # send the rest of our cycles optimizing all polygons
