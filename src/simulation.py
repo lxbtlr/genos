@@ -2,9 +2,14 @@ from src.custom_types import Polygon, Vertex, RGBA, Canvas
 from src.reconstruction import polygon_init, polygon_mutate
 from src.visualize import add_polygon, visualize_canvas
 from src.loss import sad
-from numpy import array
 from copy import copy, deepcopy
+import log_trace
+import logging
+from numpy import array
 import numpy as np
+
+
+logger = log_trace.setup_logger()
 
 
 class Simulation:
@@ -34,6 +39,7 @@ class Simulation:
         self.counter = 0
 
         self.canvas = self.create_polygon(self.canvas)
+        logger.info(f"Initialize simulation")
 
     def update_probabilities(
         self,
@@ -49,6 +55,7 @@ class Simulation:
         # Normalize the probabilities to 1
         n_probabilities = probabilities / np.sum(probabilities)
         self.probabilities = n_probabilities
+        logger.debug(f"{self.probabilities}")
         return n_probabilities
 
     def norm_opti_probs(
@@ -65,7 +72,8 @@ class Simulation:
         """
         Evaluate an image to the base_image and return the SAD
         """
-        return sad(self.base_image, image)
+        loss = sad(self.base_image, image)
+        return loss
 
     def cc_loss(self, parent, child):
         """
@@ -76,6 +84,7 @@ class Simulation:
         l_parent = self.eval_loss(parent)
         l_child = self.eval_loss(child)
 
+        logger.debug(f"parent: {l_parent} | child: {l_child}")
         return l_parent, l_child
 
     def select(
@@ -88,7 +97,7 @@ class Simulation:
         indx, self.polygon_i = np.random.choice(
             list(enumerate(self.canvas.sequence)), p=self.probabilities
         )
-
+        logger.debug(f"Polygon {indx} in sequence selected")
         return indx, self.polygon_i
 
     def create_polygon(self, c: Canvas):
@@ -119,6 +128,7 @@ class Simulation:
         # get loss of current solution
         v_k = self.eval_loss(self.canvas.image())
 
+        logger.info(f"Running Simulation, baseline loss: {v_k}")
         while t <= self.num_evals:
             _indx, self.polygon_i = self.select()
 
@@ -144,7 +154,9 @@ class Simulation:
             if (self.counter > self.stagnation_limit) and (
                 self.canvas.how_many() < self.max_polygons
             ):
+                logger.info("Stagnation counter over threshold")
                 if l_child < v_k:
+                    logger.warn("Child solution improves on parent, adding new polygon")
                     # update the canvas to the improved version
                     # FIXME: THIS NEEDS TO USE THE CORRECT VALUE
                     generations.append(deepcopy(self.canvas))
@@ -152,7 +164,11 @@ class Simulation:
 
                     v_k = l_child
                     self.counter = 0
+                    logger.info(f"reseting counter, new baseline: {v_k}")
                 else:
+                    logger.info(
+                        f"Child solution does not improve on parent, reinit. polygon"
+                    )
                     # reinit polygon
                     #  This is attempting to perform a rollback
                     previous_generation = generations[-1]
@@ -165,10 +181,13 @@ class Simulation:
             if (self.counter > self.stagnation_limit) and (
                 self.canvas.how_many() == self.max_polygons
             ):
+                logger.warn("Stagnation counter over threshold, max polygons reached")
                 # Once we reach the maximum number of generations, now we can
                 # send the rest of our cycles optimizing all polygons
                 self.norm_opti_probs()
             # TODO: incorporate logging at end of loop cycle to track sim status
+
+        logger.warn("Simulation Complete")
 
     def get_results(
         self,
@@ -224,10 +243,14 @@ def vertices_em(source: np.ndarray, recon: np.ndarray, n_vertices: int = 3) -> V
     for _ in range(n_vertices):
         threshold = np.random.rand()
         raw_index = np.argmax(matrix > threshold)
-        print(raw_index)
+
+        # TODO: check if this is relevant in final logs
+        logger.debug(f"Raw Index: {raw_index}")
         x_new = raw_index // source.shape[0]
         y_new = raw_index % source.shape[1]
         x.append(x_new)
         y.append(y_new)
-
-    return Vertex(np.array(x), np.array(y))
+    logger.debug("Energy Mapping finished")
+    point = Vertex(np.array(x), np.array(y))
+    logger.debug(point)
+    return point
