@@ -64,4 +64,4 @@ Debug State: {args.debug}"""
 )
 
 # HACK: this allows for global flags to be passed onto other files
-FLAGS = {"debug": args.debug, "axis": args.axis}
+FLAGS = {"debug": args.debug}
