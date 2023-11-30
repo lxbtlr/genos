@@ -1,4 +1,4 @@
-from src.custom_types import Solution, Vertex, RGBA, Canvas
+from src.custom_types import Polygon, Vertex, RGBA, Canvas
 from src.reconstruction import polygon_init, polygon_mutate
 from src.visualize import add_polygon, visualize_canvas
 from src.loss import sad
@@ -80,12 +80,6 @@ class Simulation:
         l_parent = self.eval_loss(parent)
         l_child = self.eval_loss(child)
 
-        # compare loss
-        if l_child < l_parent:
-            self.counter = 0
-        else:
-            self.counter += 1
-
         return l_parent, l_child
 
     def select(
@@ -106,9 +100,9 @@ class Simulation:
         Create polygon and add it to the canvas
         """
 
-        c = add_polygon(canvas=c, polygon=polygon_init(id=self.canvas.how_many()))
+        c = add_polygon(canvas=c, polygon=polygon_init(id=c.how_many()))
 
-        self.counter = 0
+        # self.counter = 0
         self.update_probabilities()
         return c
 
@@ -130,15 +124,24 @@ class Simulation:
         v_k = self.eval_loss(self.canvas.image())
 
         while t <= self.num_evals:
-            # TODO: make this a method
             _indx, self.polygon_i = self.select()
 
             # use temporary variables to store previous and current solutions
-            older_solution = copy(self.canvas)
-            newer_solution, child = polygon_mutate(self.canvas, self.polygon_i)
+            older_solution = self.canvas
+            newer_solution = polygon_mutate(self.canvas, self.polygon_i)
 
             # compare and compute the child with the parent loss
             l_parent, l_child = self.cc_loss(older_solution, newer_solution)
+
+            # compare loss
+            if l_child < l_parent:
+                self.counter = 0
+                # pushing the better solution
+                self.canvas = newer_solution
+            else:
+                self.counter += 1
+                # keep the old canvas
+                self.canvas = older_solution
 
             t += 1
 
@@ -147,17 +150,18 @@ class Simulation:
             ):
                 if l_child < v_k:
                     # update the canvas to the improved version
+                    # FIXME: THIS NEEDS TO USE THE CORRECT VALUE
                     generations.append(deepcopy(self.canvas))
-                    self.canvas = self.create_polygon(newer_solution)
+                    self.canvas = self.create_polygon(self.canvas)
 
                     v_k = l_child
                     self.counter = 0
                 else:
                     # reinit polygon
                     #  This is attempting to perform a rollback
-                    self.canvas = generations[-1]
+                    previous_generation = generations[-1]
                     # reinitializing a polygon onto the canvas
-                    self.canvas = self.create_polygon(self.canvas)
+                    self.canvas = self.create_polygon(previous_generation)
 
                     # keep pushing the counter up
                     self.counter += 1

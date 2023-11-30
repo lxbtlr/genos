@@ -1,6 +1,7 @@
 import numpy as np
 from matplotlib.patches import Polygon
-from src.custom_types import Canvas, Solution, Vertex, RGBA
+from src.custom_types import Canvas, Polygon, Vertex, RGBA
+from copy import deepcopy
 
 DIMS = (64, 64)
 N_VERTICES_TRI = 3
@@ -8,7 +9,7 @@ N_VERTICES_TRI = 3
 
 def polygon_init(
     id: int, n_vertices: int = N_VERTICES_TRI, bounds: tuple[int, int] = DIMS
-) -> Solution:
+) -> Polygon:
     """
     Create a random Polygon object.
 
@@ -23,7 +24,7 @@ def polygon_init(
         Polygon: Polygon object.
     """
     # TODO: incorporate energy map into this
-    solution = Solution(
+    polygon = Polygon(
         Vertex(
             np.random.rand(n_vertices, 1) * bounds[0],
             np.random.rand(n_vertices, 1) * bounds[1],
@@ -36,12 +37,10 @@ def polygon_init(
         ),
         _id=id,
     )
-    return solution
+    return polygon
 
 
-def polygon_mutate(
-    canvas: Canvas, polygon: Solution
-) -> tuple[Canvas, Solution]:
+def polygon_mutate(canvas: Canvas, polygon: Polygon) -> Canvas:
     """
     Mutate a Polygon object.
 
@@ -51,34 +50,35 @@ def polygon_mutate(
     3. Mutate the sequence of polygons
 
     Args:
-        polygon (Solution): Solution object to mutate.
+        polygon: Polygon object to mutate.
 
     Returns:
-        Solution: Mutated Solution object.
+        Canvas: Copy of the canvas object with the mutated polygon object.
     """
     mode = np.random.randint(3)
-
+    canvas_copy = deepcopy(canvas)
     if mode == 0:
         polygon = mutate_vertex(polygon)
+        canvas_copy.replace_polygon(polygon)
     elif mode == 1:
         polygon = mutate_color(polygon)
+        canvas_copy.replace_polygon(polygon)
     else:
         # Mutate the sequence of polygons
-        n_polygons = len(canvas.sequence)
+        n_polygons = len(canvas_copy.sequence)
         # Select a random polygon to swap with
         swap_idx = np.random.randint(n_polygons)
         # Swap the polygons
         # FIXME: id is not defined yet -- need a way to keep track of the order
-        canvas.swap(polygon._id, swap_idx)
+        canvas_copy.swap(polygon._id, swap_idx)
 
-    return canvas, polygon
+    # TODO: add the new polygon to a copy of the canvas and return that canvas copy
+    return canvas
 
 
-def mutate_vertex(
-    polygon: Solution, bounds: tuple[int, int] = DIMS
-) -> Solution:
+def mutate_vertex(polygon: Polygon, bounds: tuple[int, int] = DIMS) -> Polygon:
     """
-    Mutate a vertex of a Solution object.
+    Mutate a vertex of a Polygon object.
 
     There are 4 possible vertex mutation mechanisms:
     - Mutate the x coordinate of a vertex
@@ -89,19 +89,17 @@ def mutate_vertex(
         4. Mutation by a random number in bound
 
     Args:
-        polygon (Solution): Solution object to mutate.
+        polygon: Polygon object to mutate.
 
     Returns:
-        Solution: Mutated Solution object.
+        Polygon: Mutated Polygon object.
     """
 
     def change_value(value: float, bound: int):
         mode = np.random.randint(2)
         if mode:
             # Mutate by a scaled increment
-            increment = check_bound(
-                np.random.randint(0.1 * bound), value, bound
-            )
+            increment = check_bound(np.random.randint(0.1 * bound), value, bound)
             value += increment
         else:
             # Mutate by a number in bound
@@ -152,9 +150,9 @@ def check_bound(
     return -increment
 
 
-def mutate_color(polygon: Solution) -> Solution:
+def mutate_color(polygon: Polygon) -> Polygon:
     """
-    Mutate one of the RGBA values of a Solution object.
+    Mutate one of the RGBA values of a Polygon object.
 
     There are 8 possible color mutation mechanisms:
     - Mutate the red value of a polygon
@@ -171,10 +169,10 @@ def mutate_color(polygon: Solution) -> Solution:
         8. Mutation by a random number in bound
 
     Args:
-        polygon (Solution): Solution object to mutate.
+        polygon: Polygon object to mutate.
 
     Returns:
-        Solution: Mutated Solution object.
+        Polygon: Mutated Polygon object.
     """
 
     def change_value(value: float):
