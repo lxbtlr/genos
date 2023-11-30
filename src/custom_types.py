@@ -2,10 +2,15 @@ from numpy import dtype, array, recarray, float32, uint8, ndarray, str_
 import numpy as np
 import matplotlib.patches
 import matplotlib.collections
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+
 from dataclasses import dataclass
 from numpy.typing import ArrayLike
 
 # FIXME: import flags from argparse for colormode
+
+DIMS = (64, 64)  # Default dimensions of the canvas
 
 
 # RGBA Color
@@ -112,8 +117,20 @@ class Canvas:
         """
         Composite all polygons into an image
         """
+        fig = Figure(figsize=(DIMS[0] / 100, DIMS[1] / 100), dpi=100)
+        canvas_agg = FigureCanvasAgg(fig)
 
-        return
+        ax = fig.add_subplot()
+        ax.axis("off")
+        ax.set_xlim(0, DIMS[0])
+        ax.set_ylim(0, DIMS[1])
+        ax.add_collection(
+            matplotlib.collections.PatchCollection(self.sequence, match_original=True)
+        )
+        canvas_agg.draw()
+        rgba = np.asarray(canvas_agg.buffer_rgba())
+
+        return rgba[:, :, :3] / 255
 
 
 if __name__ == "__main__":
