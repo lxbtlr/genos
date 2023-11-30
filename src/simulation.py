@@ -2,6 +2,7 @@ from src.custom_types import Polygon, Vertex, RGBA, Canvas
 from src.reconstruction import polygon_init, polygon_mutate
 from src.visualize import add_polygon, visualize_canvas
 from src.loss import sad
+from PIL import Image
 from numpy import array
 from copy import copy, deepcopy
 import numpy as np
@@ -19,8 +20,7 @@ class Simulation:
             - Number evaluations
             - Number Verticies
         """
-
-        self.base_image = kwargs.get("b_image")
+        self.base_image: np.ndarray = np.asarray(Image.open(kwargs.get("b_image")))
         self.output_image = kwargs.get("o_image")
         self.max_polygons: int = kwargs.get("m_poly", 10)
         self.stagnation_limit: int = kwargs.get("stag_lim", 10)
@@ -61,13 +61,13 @@ class Simulation:
         self.probabilities = [1 / self.max_polygons] * self.max_polygons
         return self.probabilities
 
-    def eval_loss(self, image):
+    def eval_loss(self, image: Canvas):
         """
         Evaluate an image to the base_image and return the SAD
         """
-        return sad(self.base_image, image)
+        return sad(self.base_image, image.image())
 
-    def cc_loss(self, parent, child):
+    def cc_loss(self, parent: Canvas, child: Canvas) -> tuple[float, float]:
         """
         Compute and compare loss
         """
@@ -117,7 +117,7 @@ class Simulation:
         newer_solution = None
         older_solution = None
         # get loss of current solution
-        v_k = self.eval_loss(self.canvas.image())
+        v_k = self.eval_loss(self.canvas)
 
         while t <= self.num_evals:
             _indx, self.polygon_i = self.select()
@@ -146,7 +146,6 @@ class Simulation:
             ):
                 if l_child < v_k:
                     # update the canvas to the improved version
-                    # FIXME: THIS NEEDS TO USE THE CORRECT VALUE
                     generations.append(deepcopy(self.canvas))
                     self.canvas = self.create_polygon(self.canvas)
 
@@ -170,13 +169,21 @@ class Simulation:
                 self.norm_opti_probs()
             # TODO: incorporate logging at end of loop cycle to track sim status
 
-    def get_results(
+    def write_results(
         self,
+        generations: bool = False,
     ):
         """
         Save the results of the simulation to disk
+        if generations is made true, save all the saved generations up to the final result
         """
-        return visualize_canvas(self.canvas)
+        if generations:
+            pass
+
+        # TODO: add mkfldr
+        # TODO: save images to dir
+        # TODO: save other simulation data to that folder
+        return
 
 
 def get_energy_map(source: np.ndarray, recon: np.ndarray) -> np.ndarray:

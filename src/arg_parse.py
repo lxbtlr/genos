@@ -47,4 +47,4 @@ parser.add_argument(
 args = parser.parse_args()
 
 # HACK: this allows for global flags to be passed onto other files
-FLAGS = {"debug": args.debug, "axis": args.axis}
+FLAGS = {"debug": args.debug}
