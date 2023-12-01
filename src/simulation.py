@@ -1,6 +1,13 @@
 from src.custom_types import Polygon, Vertex, RGBA, Canvas
 from src.reconstruction import polygon_init, polygon_mutate
 from src.visualize import add_polygon, visualize_canvas
+
+import matplotlib.pyplot as mpl
+import matplotlib.patches
+import matplotlib.collections
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+
 from src.loss import sad
 from PIL import Image
 from copy import copy, deepcopy
@@ -125,7 +132,7 @@ class Simulation:
         older_solution = None
         # get loss of current solution
         v_k = self.eval_loss(self.canvas)
-        print(self.num_evals)
+        # print(self.num_evals)
         logger.info(f"Running Simulation, baseline loss: {v_k}")
 
         while t <= self.num_evals:
@@ -217,7 +224,21 @@ class Simulation:
         Save the results of the simulation to disk
         if generations is made true, save all the saved generations up to the final result
         """
-        visualize_canvas(self.canvas)
+
+        fig = Figure(figsize=(self.width / 100, self.height / 100), dpi=100)
+        canvas_agg = FigureCanvasAgg(fig)
+
+        ax = fig.add_subplot()
+        ax.axis("off")
+        ax.set_xlim(0, self.width)
+        ax.set_ylim(0, self.height)
+        ax.add_collection(
+            matplotlib.collections.PatchCollection(
+                self.canvas.sequence, match_original=True
+            )
+        )
+        mpl.savefig("output.png", bbox_inches="tight")
+        # visualize_canvas(self.canvas)
 
         if generations:
             pass
