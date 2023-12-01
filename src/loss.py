@@ -32,7 +32,7 @@ def sad(image1: ndarray, image2: ndarray):
                for pos in range(len(img1))]
     """
 
-    diff = absolute(image1.ravel() - image2.ravel())
+    diff = absolute(image1 - image2)
 
     return sum(diff)
 
