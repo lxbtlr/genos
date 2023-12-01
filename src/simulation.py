@@ -4,13 +4,13 @@ from src.visualize import add_polygon, visualize_canvas
 from src.loss import sad
 from PIL import Image
 from copy import copy, deepcopy
-import log_trace
+import src.log_trace
 import logging
 from numpy import array
 import numpy as np
 
-
-logger = log_trace.setup_logger()
+logger = logging.getLogger(__name__)
+logger = src.log_trace.setup_logger(logger)
 
 
 class Simulation:
@@ -32,12 +32,10 @@ class Simulation:
         self.n_verticies: int = kwargs.get("n_vert", 3)
         self.num_evals: int = kwargs.get("n_evals", 50000)
         # NOTE: this value is from the paper
-
         # Derived class variables
-        self.height, self.width = self.base_image.shape
+        self.height, self.width = self.base_image.shape[:2]
         self.canvas = Canvas(list())
         self.counter = 0
-
         self.canvas = self.create_polygon(self.canvas)
         logger.info(f"Initialize simulation")
 
@@ -93,10 +91,11 @@ class Simulation:
         Using probabilities, randomly select and return a polygon from the
         canvas sequence and its index
         """
-        indx, self.polygon_i = np.random.choice(
-            list(enumerate(self.canvas.sequence)), p=self.probabilities
-        )
+        self.polygon_i = np.random.choice(self.canvas.sequence, p=self.probabilities)
+        indx = self.canvas.get_index(self.polygon_i._id)
+
         logger.debug(f"Polygon {indx} in sequence selected")
+
         return indx, self.polygon_i
 
     def create_polygon(self, c: Canvas):
@@ -126,9 +125,11 @@ class Simulation:
         older_solution = None
         # get loss of current solution
         v_k = self.eval_loss(self.canvas)
-
+        print(self.num_evals)
         logger.info(f"Running Simulation, baseline loss: {v_k}")
+
         while t <= self.num_evals:
+            logger.info(f"time:{t}")
             _indx, self.polygon_i = self.select()
 
             # use temporary variables to store previous and current solutions
@@ -171,8 +172,29 @@ class Simulation:
                     #  This is attempting to perform a rollback
                     previous_generation = generations[-1]
                     # reinitializing a polygon onto the canvas
-                    self.canvas = self.create_polygon(previous_generation)
+                    # TODO: implement EM here
 
+                    picked_verts = vertices_em(
+                        self.base_image,
+                        previous_generation.image(),
+                    )
+
+                    reinit_polygon = Polygon(
+                        picked_verts,
+                        RGBA(
+                            np.random.rand(),
+                            np.random.rand(),
+                            np.random.rand(),
+                            np.random.rand(),
+                        ),
+                        _id=previous_generation.how_many(),
+                    )
+                    self.canvas = previous_generation
+                    self.canvas = add_polygon(
+                        canvas=self.canvas, polygon=reinit_polygon
+                    )
+
+                    self.update_probabilities()
                     # keep pushing the counter up
                     self.counter += 1
 
@@ -195,6 +217,8 @@ class Simulation:
         Save the results of the simulation to disk
         if generations is made true, save all the saved generations up to the final result
         """
+        visualize_canvas(self.canvas)
+
         if generations:
             pass
 
