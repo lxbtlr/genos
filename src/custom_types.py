@@ -34,7 +34,7 @@ class RGBA:
 
 
 @dataclass
-class Vertex:
+class Vertices:
     """Dataclass representing vertices of a polygon"""
 
     x: ndarray
@@ -55,7 +55,7 @@ class Polygon(matplotlib.patches.Polygon):
     Datatype representing a single solution / polygon
     """
 
-    def __init__(self, vertices: Vertex, color: RGBA, _id: int):
+    def __init__(self, vertices: Vertices, color: RGBA, _id: int):
         super().__init__(
             xy=np.c_[vertices.x, vertices.y], color=color.get_all(), closed=True
         )

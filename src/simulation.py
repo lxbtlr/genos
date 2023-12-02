@@ -1,4 +1,4 @@
-from src.custom_types import Polygon, Vertex, RGBA, Canvas
+from src.custom_types import Polygon, Vertices, RGBA, Canvas
 from src.reconstruction import polygon_init, polygon_mutate
 from src.visualize import add_polygon, visualize_canvas
 from src.loss import sad
@@ -185,7 +185,7 @@ class Simulation:
                 # send the rest of our cycles optimizing all polygons
                 self.norm_opti_probs()
             # TODO: incorporate logging at end of loop cycle to track sim status
-            
+
         logger.warn("Simulation Complete")
 
     def write_results(
@@ -233,7 +233,7 @@ def get_energy_map(source: np.ndarray, recon: np.ndarray) -> np.ndarray:
     return supp_matrix
 
 
-def vertices_em(source: np.ndarray, recon: np.ndarray, n_vertices: int = 3) -> Vertex:
+def vertices_em(source: np.ndarray, recon: np.ndarray, n_vertices: int = 3) -> Vertices:
     """
 
     Args:
@@ -242,7 +242,7 @@ def vertices_em(source: np.ndarray, recon: np.ndarray, n_vertices: int = 3) -> V
         n_vertices (int): Number of vertices. Defaults to
 
     Returns:
-        Vertex: A set of vertices chosen based on the energy map.
+        Vertices: A set of vertices chosen based on the energy map.
     """
     matrix = get_energy_map(source, recon)
     x = []
@@ -258,6 +258,6 @@ def vertices_em(source: np.ndarray, recon: np.ndarray, n_vertices: int = 3) -> V
         x.append(x_new)
         y.append(y_new)
     logger.debug("Energy Mapping finished")
-    point = Vertex(np.array(x), np.array(y))
+    point = Vertices(np.array(x), np.array(y))
     logger.debug(point)
     return point

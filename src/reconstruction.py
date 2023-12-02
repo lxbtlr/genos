@@ -2,7 +2,7 @@ import numpy as np
 from matplotlib.patches import Polygon
 import log_trace
 import logging
-from src.custom_types import Canvas, Polygon, Vertex, RGBA
+from src.custom_types import Canvas, Polygon, Vertices, RGBA
 from copy import deepcopy
 
 DIMS = (64, 64)
@@ -30,7 +30,7 @@ def polygon_init(
     """
     # TODO: incorporate energy map into this
     polygon = Polygon(
-        Vertex(
+        Vertices(
             np.random.rand(n_vertices, 1) * bounds[0],
             np.random.rand(n_vertices, 1) * bounds[1],
         ),
