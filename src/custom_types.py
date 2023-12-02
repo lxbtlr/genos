@@ -1,9 +1,11 @@
-from numpy import dtype, array, recarray, float32, uint8, ndarray, str_
+from numpy import array, float32, ndarray
 import numpy as np
 import matplotlib.patches
 import matplotlib.collections
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
+from typing import Iterator, Tuple
+
 
 from dataclasses import dataclass
 from numpy.typing import ArrayLike
@@ -33,12 +35,14 @@ class RGBA:
 
 @dataclass
 class Vertex:
+    """Dataclass representing vertices of a polygon"""
+
     x: ndarray
     y: ndarray
 
     def pairs(
         self,
-    ):
+    ) -> Iterator[Tuple[ArrayLike, ArrayLike]]:
         """
         Get x,y pairs
         """
@@ -57,14 +61,23 @@ class Polygon(matplotlib.patches.Polygon):
         )
         self._id: int = _id
 
+    @property
+    def id(self):
+        """id of the polygon"""
+        return self._id
+
 
 @dataclass
 class Canvas:
+    """
+    Datatype representing a sequence of polygons on a canvas
+    """
+
     sequence: list[Polygon]
 
-    def swap(self, ind_1, ind_2):
+    def swap(self, ind_1: int, ind_2: int) -> None:
         """
-        given two indicies swap the position of the two Polygons
+        given two indices swap the position of the two Polygons
         """
 
         self.sequence[ind_1], self.sequence[ind_2] = (
@@ -72,31 +85,28 @@ class Canvas:
             self.sequence[ind_1],
         )
 
-        return None
-
-    def how_many(self):
+    def how_many(self) -> int:
         """
         get how many polygons are in the sequence
         """
         return len(self.sequence)
 
-    def get_index(self, _id):
+    def get_index(self, _id: int):
         """
         get the index of a polygon in the sequence by id
         """
-        for c, val in enumerate(self.sequence):
-            if val._id == _id:
-                return c
+        for i, polygon in enumerate(self.sequence):
+            if polygon.id == _id:
+                return i
 
         # NOTE: Case where the index is not found
         return -1
 
-    def replace_polygon(self, updated_polygon: Polygon):
+    def replace_polygon(self, updated_polygon: Polygon) -> None:
         """
         update the polygon at the given index with an updated polygon
         """
-        self.sequence[updated_polygon._id] = updated_polygon
-        pass
+        self.sequence[updated_polygon.id] = updated_polygon
 
     # def mut_prob(self, _id):
     #    """
@@ -106,12 +116,11 @@ class Canvas:
 
     #    return 1/(2**(1+self.get_index(_id)))
 
-    def get_order(self):
+    def get_order(self) -> list[int]:
         """
-        get all id's of the sequence in the order they appear
+        get all id's of the polygons in the order they appear in the sequence
         """
-
-        return array([i._id for i in self.sequence])
+        return array([i.id for i in self.sequence])
 
     def image(self):
         """
