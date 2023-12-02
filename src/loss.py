@@ -32,9 +32,9 @@ def sad(image1: ndarray, image2: ndarray):
                for pos in range(len(img1))]
     """
 
-    diff = absolute(image1.ravel() - image2.ravel())
+    diff = absolute(image1 - image2)
 
-    return sum(diff) / diff.shape[0]
+    return sum(diff)
 
 
 def complete_percent(base_image: ndarray, comp_image: ndarray, l_func=sad) -> float:
@@ -47,7 +47,6 @@ def complete_percent(base_image: ndarray, comp_image: ndarray, l_func=sad) -> fl
     """
 
     blank = zeros(base_image.shape)
-    print(blank.shape)
     max_l = l_func(base_image, blank)
 
     if max_l == 0:
@@ -55,9 +54,9 @@ def complete_percent(base_image: ndarray, comp_image: ndarray, l_func=sad) -> fl
             "The images provided are identical,\npreventing divide by 0 error"
         )
     l_best = l_func(base_image, comp_image)
-    print(f"Complete Loss: {l_func.__name__}")
-    print(f"max_diff: {max_l}")
-    print(f"l_best: {l_best}")
+    # print(f"Complete Loss: {l_func.__name__}")
+    # print(f"max_diff: {max_l}")
+    # print(f"l_best: {l_best}")
 
     return (absolute(max_l - l_best) / max_l) * 100
 
@@ -107,4 +106,10 @@ if __name__ == "__main__":
         complete_percent(diamond, zeros(diamond.shape), sad),
     )
 
+    windows = img.imread("../img/windows.jpg")
+    blk = zeros(windows.shape)
+    wht = ones(windows.shape)
+    print(f"SAD of windows img and black: {sad(windows,blk)}")
+    print(f"SAD of windows img and white: {sad(windows,wht)}")
+    print(f"SAD of windows img and one: {sad(windows,one)}")
 # check to see if opacity should weight the color values for comparison (SAD may not work as expected)

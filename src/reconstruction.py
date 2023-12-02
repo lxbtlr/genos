@@ -1,6 +1,6 @@
 import numpy as np
 from matplotlib.patches import Polygon
-import log_trace
+import src.log_trace
 import logging
 from src.custom_types import Canvas, Polygon, Vertices, RGBA
 from copy import deepcopy
@@ -9,7 +9,7 @@ DIMS = (64, 64)
 N_VERTICES_TRI = 3
 
 
-logger = log_trace.setup_logger()
+logger = logging.getLogger(__name__)
 
 
 def polygon_init(
@@ -111,19 +111,16 @@ def mutate_vertex(polygon: Polygon, bounds: tuple[int, int] = DIMS) -> Polygon:
             value = np.random.randint(bound + 1)
         return value
 
+    # print(polygon.xy)
     vertex_idx = np.random.randint(len(polygon.xy))
     if np.random.randint(2):
         # Mutate x
-        polygon.xy[vertex_idx][0] = (
-            change_value(polygon.xy[vertex_idx][0], bounds[0]),
-            polygon.xy[vertex_idx][1],
-        )
+        # Changed this to only assign a new value to the chosen coord
+        polygon.xy[vertex_idx][0] = change_value(polygon.xy[vertex_idx][0], bounds[0])
+
     else:
         # Mutate y
-        polygon.xy[vertex_idx][1] = (
-            polygon.xy[vertex_idx][0],
-            change_value(polygon.xy[vertex_idx][1], bounds[1]),
-        )
+        polygon.xy[vertex_idx][1] = change_value(polygon.xy[vertex_idx][1], bounds[1])
 
     # If the first vertex is selected, we need to update the last vertex as well
     if vertex_idx == 0:

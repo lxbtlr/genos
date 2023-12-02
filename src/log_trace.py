@@ -4,20 +4,27 @@ import sys
 import time
 
 
-def setup_logger() -> logging.Logger:
+def setup_logger(logger) -> logging.Logger:
     """
     Create a standardized logger for this module
     """
+    mode = 0
     log_format = "%(asctime)s :: %(name)s :: %(module)s :: %(levelname)s :: %(message)s"
 
-    logger = logging.getLogger(__name__)
     logger.setLevel("DEBUG")
 
-    file_handler = logging.FileHandler(filename="simulation.log", mode="a")
-    logger.addHandler(file_handler)
-
     formatter = logging.Formatter(log_format)
-    file_handler.setFormatter(formatter)
+
+    if mode:
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.DEBUG)
+        logger.addHandler(ch)
+        ch.setFormatter(formatter)
+    else:
+        file_handler = logging.FileHandler(filename="simulation.log", mode="a")
+        logger.addHandler(file_handler)
+
+        file_handler.setFormatter(formatter)
 
     return logger
 
