@@ -75,10 +75,10 @@ def polygon_mutate(canvas: Canvas, polygon: Polygon) -> Canvas:
         swap_idx = np.random.randint(n_polygons)
         # Swap the polygons
         # FIXME: id is not defined yet -- need a way to keep track of the order
-        canvas_copy.swap(polygon._id, swap_idx)
+        canvas_copy.swap(polygon.id, swap_idx)
 
     # TODO: add the new polygon to a copy of the canvas and return that canvas copy
-    return canvas
+    return canvas_copy
 
 
 def mutate_vertex(polygon: Polygon, bounds: tuple[int, int] = DIMS) -> Polygon:
@@ -188,7 +188,7 @@ def mutate_color(polygon: Polygon) -> Polygon:
             value = np.random.rand()
         return value
 
-    rgba = list(polygon.get_facecolor())
+    rgba = deepcopy(list(polygon.get_facecolor()))
     color_idx = np.random.randint(4)
     rgba[color_idx] = change_value(rgba[color_idx])
     polygon.set_color(rgba)
