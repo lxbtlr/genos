@@ -38,7 +38,6 @@ class Simulation:
             - Number Verticies
         """
         self.base_image: np.ndarray = np.asarray(Image.open(kwargs.get("b_image")))
-        self.output_image = kwargs.get("o_image")
         self.max_polygons: int = kwargs.get("m_poly", 10)
         self.stagnation_limit: int = kwargs.get("stag_lim", 10)
         self.n_verticies: int = kwargs.get("n_vert", 3)
@@ -282,7 +281,7 @@ class Simulation:
                 self.canvas.sequence, match_original=True
             )
         )
-        mpl.savefig("output.png", bbox_inches="tight")
+        mpl.savefig(self.folder_path + "/output.png", bbox_inches="tight")
         # visualize_canvas(self.canvas)
 
         if generations:

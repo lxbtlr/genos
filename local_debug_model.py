@@ -23,7 +23,6 @@ if __name__ == "__main__":
     small_test_sim = Simulation(
         folder_path=simulation_data_folder,
         b_image="img/1.png",
-        o_image="img/test_output.jpg",
         m_poly=20,
         stag_lim=100,
         n_evals=10000,
