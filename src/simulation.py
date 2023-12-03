@@ -157,7 +157,9 @@ class Simulation:
         logger.info(f"Running Simulation, baseline loss: {v_k}")
 
         while t <= self.num_evals:
-            logger.info(f"time:{t}")
+            logger.info(
+                f"time:{t}, Polygons: {self.canvas.how_many()}, baseline loss {v_k}"
+            )
             _indx, selected_polygon = self.select()
 
             # use temporary variables to store previous and current solutions
