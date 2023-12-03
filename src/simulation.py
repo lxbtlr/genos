@@ -1,6 +1,6 @@
 from src.custom_types import Polygon, Vertices, RGBA, Canvas
-from src.reconstruction import polygon_init, polygon_mutate
-from src.visualize import add_polygon, visualize_canvas
+from src.reconstruction import polygon_mutate
+from src.visualize import add_polygon
 
 import matplotlib.pyplot as mpl
 import matplotlib.patches
@@ -8,9 +8,9 @@ import matplotlib.collections
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 
-from src.loss import sad
+from src.loss import complete_percent, sad
 from PIL import Image
-from copy import copy, deepcopy
+from copy import deepcopy
 import src.log_trace
 import logging
 from numpy import array
@@ -55,7 +55,7 @@ class Simulation:
         num = self.canvas.how_many()
 
         # Generate Geometric series of probabilities for the sequence
-        probabilities = array([1 / (2 ** (1 + x)) for x in range(num)])
+        probabilities = array([1 / (2 ** (1 + (num - 1 - x))) for x in range(num)])
 
         # Normalize the probabilities to 1
         n_probabilities = probabilities / np.sum(probabilities)
@@ -77,7 +77,7 @@ class Simulation:
         """
         Evaluate an image to the base_image and return the SAD
         """
-        return sad(self.base_image, image.image())
+        return complete_percent(self.base_image, image.image(), sad)
 
     def cc_loss(self, parent: Canvas, child: Canvas) -> tuple[float, float]:
         """
@@ -98,19 +98,34 @@ class Simulation:
         Using probabilities, randomly select and return a polygon from the
         canvas sequence and its index
         """
-        self.polygon_i = np.random.choice(self.canvas.sequence, p=self.probabilities)
-        indx = self.canvas.get_index(self.polygon_i._id)
+        selected_polygon: Polygon = np.random.choice(
+            self.canvas.sequence, p=self.probabilities
+        )
+        indx = self.canvas.get_index(selected_polygon.id)
 
         logger.debug(f"Polygon {indx} in sequence selected")
 
-        return indx, self.polygon_i
+        return indx, selected_polygon
 
     def create_polygon(self, c: Canvas):
         """
         Create polygon and add it to the canvas
         """
-
-        c = add_polygon(canvas=c, polygon=polygon_init(id=c.how_many()))
+        picked_verts = vertices_em(
+            self.base_image,
+            self.canvas.image(),
+        )
+        polygon = Polygon(
+            picked_verts,
+            RGBA(
+                np.random.rand(),
+                np.random.rand(),
+                np.random.rand(),
+                np.random.rand(),
+            ),
+            _id=c.how_many(),
+        )
+        c = add_polygon(canvas=c, polygon=polygon)
 
         # self.counter = 0
         self.update_probabilities()
@@ -137,11 +152,11 @@ class Simulation:
 
         while t <= self.num_evals:
             logger.info(f"time:{t}")
-            _indx, self.polygon_i = self.select()
+            _indx, selected_polygon = self.select()
 
             # use temporary variables to store previous and current solutions
-            older_solution = self.canvas
-            newer_solution = polygon_mutate(self.canvas, self.polygon_i)
+            older_solution = deepcopy(self.canvas)
+            newer_solution = polygon_mutate(self.canvas, selected_polygon)
 
             # compare and compute the child with the parent loss
             l_parent, l_child = self.cc_loss(older_solution, newer_solution)
@@ -168,12 +183,13 @@ class Simulation:
                     generations.append(deepcopy(self.canvas))
                     self.canvas = self.create_polygon(self.canvas)
 
-                    v_k = l_child
+                    v_k = l_parent
                     self.counter = 0
+
                     logger.info(f"reseting counter, new baseline: {v_k}")
                 else:
                     logger.info(
-                        f"Child solution does not improve on parent, reinit. polygon"
+                        "Child solution does not improve on parent, reinit. polygon"
                     )
                     # reinit polygon
                     #  This is attempting to perform a rollback
@@ -196,9 +212,8 @@ class Simulation:
                         ),
                         _id=previous_generation.how_many(),
                     )
-                    self.canvas = previous_generation
                     self.canvas = add_polygon(
-                        canvas=self.canvas, polygon=reinit_polygon
+                        canvas=previous_generation, polygon=reinit_polygon
                     )
 
                     self.update_probabilities()
@@ -213,6 +228,22 @@ class Simulation:
                 # send the rest of our cycles optimizing all polygons
                 self.norm_opti_probs()
             # TODO: incorporate logging at end of loop cycle to track sim status
+
+            # NOTE: this is for debugging purposes
+            # fig = Figure(figsize=(self.width / 100, self.height / 100), dpi=100)
+            # canvas_agg = FigureCanvasAgg(fig)
+
+            # ax = fig.add_subplot()
+            # ax.axis("off")
+            # ax.set_xlim(0, self.width)
+            # ax.set_ylim(0, self.height)
+            # ax.add_collection(
+            #     matplotlib.collections.PatchCollection(
+            #         self.canvas.sequence, match_original=True
+            #     )
+            # )
+            # canvas_agg.draw()
+            # canvas_agg.print_figure(f"./out/{t}.png", bbox_inches="tight")
 
         logger.warn("Simulation Complete")
 
