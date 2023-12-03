@@ -1,8 +1,9 @@
 from argparse import ArgumentParser
-import log_trace
+import src.log_trace
 import logging
 
-logger = log_trace.setup_logger()
+logger = logging.getLogger(__name__)
+logger = src.log_trace.setup_logger(logger)
 
 parser = ArgumentParser(
     description="A Progressive Hill Climbing Image Reconstruction Script"
@@ -57,7 +58,7 @@ parser.add_argument(
 args = parser.parse_args()
 
 logger.debug(
-    f"""Max Generations: {args.max_generations}
+    f"""Max Generations: {args.max_polygons}
 Max Evaluations: {args.max_evaluations}
 Stagnation Limits: {args.stagnation_limit}
 Debug State: {args.debug}"""
