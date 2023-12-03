@@ -44,11 +44,7 @@ class Simulation:
         self.stagnation_limit: int = kwargs.get("stag_lim", 10)
         self.n_vertices: int = kwargs.get("n_vert", 3)
         self.num_evals: int = kwargs.get("n_evals", 50000)
-<<<<<<< HEAD
         self.min_save: bool = kwargs.get("min_save", True)
-=======
-
->>>>>>> 2a50d8ea707b99409f4f5f404746dd924d7426fe
         # NOTE: this value is from the paper
         # Derived class variables
         self.height, self.width = self.base_image.shape[:2]
@@ -106,7 +102,7 @@ class Simulation:
 
     def select(
         self,
-    ):
+    ) -> Polygon:
         """
         Using probabilities, randomly select and return a polygon from the
         canvas sequence and its index
@@ -119,7 +115,7 @@ class Simulation:
         logger.debug(
             f"Polgon selected: {selected_polygon.id}, indx: {indx}, (p={self.probabilities}) "
         )
-        return indx, selected_polygon
+        return selected_polygon
 
     def create_polygon(self, c: Canvas):
         """
@@ -155,10 +151,11 @@ class Simulation:
         # initialize vars
         t = 0
 
-        generations = [self.canvas]
+        generations = [deepcopy(self.canvas)]
 
         newer_solution = None
         older_solution = None
+        is_reinit = False
         # get loss of current solution
         v_k = self.eval_loss(self.canvas)
         # print(self.num_evals)
@@ -168,28 +165,49 @@ class Simulation:
             logger.info(
                 f"time:{t}, Polygons: {self.canvas.how_many()}, baseline loss {v_k}"
             )
-            _indx, selected_polygon = self.select()
+            if not is_reinit:
+                selected_polygon = self.select()
 
-            # use temporary variables to store previous and current solutions
-            older_solution = deepcopy(self.canvas)
-            newer_solution = polygon_mutate(self.canvas, selected_polygon)
+                # use temporary variables to store previous and current solutions
+                older_solution = deepcopy(self.canvas)
+                newer_solution = polygon_mutate(self.canvas, selected_polygon)
 
-            # compare and compute the child with the parent loss
-            l_parent, l_child = self.cc_loss(older_solution, newer_solution)
+                # compare and compute the child with the parent loss
+                l_parent, l_child = self.cc_loss(older_solution, newer_solution)
 
-            # compare loss
-            if l_child < l_parent:
-                self.counter = 0
-                # pushing the better solution
-                self.canvas = newer_solution
-                if self.min_save:
+                # compare loss
+                if l_child < l_parent:
+                    self.counter = 0
+                    # pushing the better solution
+                    self.canvas = newer_solution
+                    if self.min_save:
+                        self.save_image(t)
+                else:
+                    self.counter += 1
+                    # keep the old canvas
+                    self.canvas = older_solution
+                if not self.min_save:
                     self.save_image(t)
+
             else:
-                self.counter += 1
-                # keep the old canvas
-                self.canvas = older_solution
-            if not self.min_save:
-                self.save_image(t)
+                # NOTE: this is the reinit case
+                # NOTE: this is the same as the above code, but without any mutations
+
+                # compare and compute the child with the parent loss
+                older_solution = deepcopy(generations[-1])
+                reinit_solution = self.canvas
+                l_parent, l_reinit = self.cc_loss(older_solution, reinit_solution)
+
+                # compare loss
+                if l_reinit < l_parent:
+                    self.counter = 0
+                    if self.min_save:
+                        self.save_image(t)
+                    is_reinit = False
+                else:
+                    self.counter += 1
+                if not self.min_save:
+                    self.save_image(t)
 
             t += 1
 
@@ -213,28 +231,43 @@ class Simulation:
                     )
                     # reinit polygon
                     #  This is attempting to perform a rollback
-                    previous_generation = generations[-1]
-                    # reinitializing a polygon onto the canvas
-                    # TODO: implement EM here
-
+                    is_reinit = True
+                    previous_generation = deepcopy(generations[-1])
                     picked_verts = vertices_em(
                         self.base_image,
                         previous_generation.image(),
                     )
 
-                    reinit_polygon = Polygon(
-                        picked_verts,
-                        RGBA(
-                            np.random.rand(),
-                            np.random.rand(),
-                            np.random.rand(),
-                            np.random.rand(),
-                        ),
-                        _id=previous_generation.how_many(),
-                    )
-                    self.canvas = add_polygon(
-                        canvas=previous_generation, polygon=reinit_polygon
-                    )
+                    if previous_generation.how_many() == 1:
+                        logger.warn("Only one polygon in the canvas.")
+                        reinit_polygon = Polygon(
+                            picked_verts,
+                            RGBA(
+                                np.random.rand(),
+                                np.random.rand(),
+                                np.random.rand(),
+                                np.random.rand(),
+                            ),
+                            _id=0,  # Set the id to 0 to replace the only polygon
+                        )
+                        self.canvas.replace_polygon(reinit_polygon)
+
+                    # reinitializing a polygon onto the canvas
+
+                    else:
+                        reinit_polygon = Polygon(
+                            picked_verts,
+                            RGBA(
+                                np.random.rand(),
+                                np.random.rand(),
+                                np.random.rand(),
+                                np.random.rand(),
+                            ),
+                            _id=previous_generation.how_many(),
+                        )
+                        self.canvas = add_polygon(
+                            canvas=previous_generation, polygon=reinit_polygon
+                        )
 
                     self.update_probabilities()
                     # keep pushing the counter up
