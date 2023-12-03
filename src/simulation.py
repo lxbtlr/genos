@@ -15,6 +15,9 @@ import src.log_trace
 import logging
 from numpy import array
 import numpy as np
+import time
+import os
+import sys
 
 logger = logging.getLogger(__name__)
 logger = src.log_trace.setup_logger(logger)
@@ -44,6 +47,8 @@ class Simulation:
         self.canvas = Canvas(list())
         self.counter = 0
         self.canvas = self.create_polygon(self.canvas)
+        self.folder_path = make_folder_path()
+
         logger.info(f"Initialize simulation")
 
     def update_probabilities(
@@ -244,7 +249,10 @@ class Simulation:
                 )
             )
             canvas_agg.draw()
-            canvas_agg.print_figure(f"./out/{t}.png", bbox_inches="tight")
+            canvas_agg.print_figure(
+                f"{self.folder_path}/{str(t).zfill(len(str(self.num_evals)))}.png",
+                bbox_inches="tight",
+            )
 
         logger.warn("Simulation Complete")
 
@@ -279,6 +287,21 @@ class Simulation:
         # TODO: save images to dir
         # TODO: save other simulation data to that folder
         return
+
+
+def make_folder_path(
+    folder_name="img", *, START_TIME: str = "-".join(time.ctime().split()[1:4])
+) -> str:
+    """
+    Check to see if the folder exists, if not make the folder.
+    @return str The abs. path to the folder
+    """
+
+    script_loc = os.path.dirname(os.path.abspath(sys.argv[0]))
+    folder_path = os.path.join(script_loc, f"{folder_name}", START_TIME)
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+    return folder_path
 
 
 def get_energy_map(source: np.ndarray, recon: np.ndarray) -> np.ndarray:

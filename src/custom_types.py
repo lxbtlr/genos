@@ -109,7 +109,7 @@ class Canvas:
         """
         update the polygon at the given index with an updated polygon
         """
-        self.sequence[updated_polygon.id] = updated_polygon
+        self.sequence[self.get_index(updated_polygon.id)] = updated_polygon
 
     # def mut_prob(self, _id):
     #    """

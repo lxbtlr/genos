@@ -3,7 +3,7 @@ from matplotlib.patches import Polygon
 import logging
 import src.log_trace
 from src.custom_types import Canvas, Polygon, Vertices, RGBA
-from copy import deepcopy
+from copy import deepcopy, copy
 
 DIMS = (64, 64)
 N_VERTICES_TRI = 3
@@ -117,7 +117,7 @@ def mutate_vertex(polygon: Polygon, bounds: tuple[int, int] = DIMS) -> Polygon:
     # print(polygon.xy)
     vertex_idx = np.random.randint(low=0, high=len(polygon.xy))
     logger.debug(f"Vertex chosen: {vertex_idx}")
-    old_polygon_vertex = polygon.xy[vertex_idx]
+    old_polygon_vertex = deepcopy(polygon.xy[vertex_idx])
     if np.random.randint(low=0, high=2):
         # Mutate x
         # Changed this to only assign a new value to the chosen coord
@@ -206,7 +206,7 @@ def mutate_color(polygon: Polygon) -> Polygon:
         return value
 
     rgba = deepcopy(list(polygon.get_facecolor()))
-    old_rgba = rgba
+    old_rgba = deepcopy(rgba)
     color_idx = np.random.randint(low=0, high=4)
     rgba[color_idx] = change_value(rgba[color_idx])
     if color_idx == 3:
@@ -216,8 +216,10 @@ def mutate_color(polygon: Polygon) -> Polygon:
         polygon.set_alpha(alpha)
     else:
         rgb = tuple(rgba[:3])
+        logger.debug(
+            f"Color mutation: was {list(polygon.get_facecolor())[:3]} now {rgb}"
+        )
         polygon.set_facecolor(rgb)
-        logger.debug(f"Color mutation: was {list(polygon.get_facecolor())} now {rgb}")
         logger.debug(
             f"Color mutation: diff {[a_i - b_i for a_i, b_i in zip(old_rgba, rgb)]}"
         )
