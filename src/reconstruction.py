@@ -115,14 +115,22 @@ def mutate_vertex(polygon: Polygon, bounds: tuple[int, int] = DIMS) -> Polygon:
 
     # print(polygon.xy)
     vertex_idx = np.random.randint(low=0, high=len(polygon.xy))
+    logger.debug(f"Vertex chosen: {vertex_idx}")
+    old_polygon_vertex = polygon.xy[vertex_idx]
     if np.random.randint(low=0, high=2):
         # Mutate x
         # Changed this to only assign a new value to the chosen coord
         polygon.xy[vertex_idx][0] = change_value(polygon.xy[vertex_idx][0], bounds[0])
 
+        logger.debug(
+            f"Vertex mutation (X): was {old_polygon_vertex[0]} now {polygon.xy[vertex_idx][0]}"
+        )
     else:
         # Mutate y
         polygon.xy[vertex_idx][1] = change_value(polygon.xy[vertex_idx][1], bounds[1])
+        logger.debug(
+            f"Vertex mutation (Y): was {old_polygon_vertex[1]} now {polygon.xy[vertex_idx][1]}"
+        )
 
     # If the first vertex is selected, we need to update the last vertex as well
     if vertex_idx == 0:
@@ -150,7 +158,9 @@ def check_bound(
         int | float: Adjusted increment.
     """
     if value + increment <= bound and value + increment >= 0:
+        logger.debug(f"Bounds: increment ({increment}) is in bounds")
         return increment
+    logger.debug(f"Bounds: increment ({increment}) is out of bounds")
     return -increment
 
 
@@ -178,6 +188,7 @@ def mutate_color(polygon: Polygon) -> Polygon:
     Returns:
         Polygon: Mutated Polygon object.
     """
+    change = ""
 
     def change_value(value: float):
         mode = np.random.randint(low=0, high=2)
@@ -194,14 +205,16 @@ def mutate_color(polygon: Polygon) -> Polygon:
         return value
 
     rgba = deepcopy(list(polygon.get_facecolor()))
+    old_rgba = rgba
     color_idx = np.random.randint(low=0, high=4)
     rgba[color_idx] = change_value(rgba[color_idx])
     if color_idx == 3:
         # If alpha is mutated, we need to update the polygon color
         alpha = change_value(rgba[3])
+        logger.debug(f"Color mutation (alpha): was {rgba[3]} now {alpha}")
         polygon.set_alpha(alpha)
     else:
         rgb = tuple(rgba[:3])
         polygon.set_facecolor(rgb)
-
+        logger.debug(f"Color mutation: was {old_rgba} now {rgb}")
     return polygon

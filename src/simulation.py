@@ -60,7 +60,7 @@ class Simulation:
         # Normalize the probabilities to 1
         n_probabilities = probabilities / np.sum(probabilities)
         self.probabilities = n_probabilities
-        logger.debug(f"{self.probabilities}")
+        logger.debug(f"Probabilities updated, now: {self.probabilities}")
         return n_probabilities
 
     def norm_opti_probs(
@@ -103,8 +103,9 @@ class Simulation:
         )
         indx = self.canvas.get_index(selected_polygon.id)
 
-        logger.debug(f"Polygon {indx} in sequence selected")
-
+        logger.debug(
+            f"Polgon selected: {selected_polygon.id}, indx: {indx}, (p={self.probabilities}) "
+        )
         return indx, selected_polygon
 
     def create_polygon(self, c: Canvas):
