@@ -1,7 +1,5 @@
 from src.arg_parse import args
 from src.simulation import Simulation
-from src.custom_types import Canvas, Polygon
-import matplotlib.pyplot as mpl
 
 if __name__ == "__main__":
     sim = Simulation(
@@ -10,6 +8,7 @@ if __name__ == "__main__":
         m_poly=args.max_polygons,
         stag_lim=args.stagnation_limit,
         num_evals=args.max_evaluations,
+        min_save=args.min_save,
     )
     # run simulation
     sim.run()

@@ -21,11 +21,18 @@ logger = src.log_trace.setup_logger(
 
 if __name__ == "__main__":
     small_test_sim = Simulation(
+<<<<<<< HEAD
+        b_image="img/windows2.jpg",
+        o_image="img/test_output.jpg",
+        m_poly=50,
+=======
         folder_path=simulation_data_folder,
         b_image="img/1.png",
         m_poly=20,
+>>>>>>> 2a50d8ea707b99409f4f5f404746dd924d7426fe
         stag_lim=100,
-        n_evals=10000,
+        n_evals=50000,
+        min_save=True,
     )
     # run simulation
     logger.info("running sim")

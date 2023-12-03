@@ -52,6 +52,14 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "-m",
+    "--min-save",
+    type=bool,
+    default=True,
+    help="Save only images that are improving the current generation's fitness score (default=True)",
+)
+
+parser.add_argument(
     "-d", "--debug", action="store_true", default=False, help="Toggle the debug flag"
 )
 
@@ -61,6 +69,7 @@ logger.debug(
     f"""Max Generations: {args.max_polygons}
 Max Evaluations: {args.max_evaluations}
 Stagnation Limits: {args.stagnation_limit}
+Min Save: {args.min_save}
 Debug State: {args.debug}"""
 )
 

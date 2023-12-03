@@ -77,6 +77,8 @@ class Canvas:
     """
 
     sequence: list[Polygon]
+    width: int
+    height: int
 
     def swap(self, ind_1: int, ind_2: int) -> None:
         """
@@ -129,13 +131,13 @@ class Canvas:
         """
         Composite all polygons into an image
         """
-        fig = Figure(figsize=(DIMS[0] / 100, DIMS[1] / 100), dpi=100)
+        fig = Figure(figsize=(self.width / 100, self.height / 100), dpi=100)
         canvas_agg = FigureCanvasAgg(fig)
 
         ax = fig.add_subplot()
         ax.axis("off")
-        ax.set_xlim(0, DIMS[0])
-        ax.set_ylim(0, DIMS[1])
+        ax.set_xlim(0, self.width)
+        ax.set_ylim(0, self.height)
         ax.add_collection(
             matplotlib.collections.PatchCollection(self.sequence, match_original=True)
         )
