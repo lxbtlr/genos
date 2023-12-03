@@ -57,7 +57,10 @@ class Polygon(matplotlib.patches.Polygon):
 
     def __init__(self, vertices: Vertices, color: RGBA, _id: int):
         super().__init__(
-            xy=np.c_[vertices.x, vertices.y], color=color.get_all(), closed=True
+            xy=np.c_[vertices.x, vertices.y],
+            color=color.get_all(),
+            closed=True,
+            linewidth=0,
         )
         self._id: int = _id
 
