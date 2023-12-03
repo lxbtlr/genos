@@ -183,7 +183,7 @@ class Simulation:
                 self.canvas.how_many() < self.max_polygons
             ):
                 logger.info("Stagnation counter over threshold")
-                if l_child < v_k:
+                if l_parent < v_k:
                     logger.warn("Child solution improves on parent, adding new polygon")
                     # update the canvas to the improved version
                     generations.append(deepcopy(self.canvas))
