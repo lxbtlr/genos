@@ -1,6 +1,5 @@
 import numpy as np
 from matplotlib.patches import Polygon
-import src.log_trace
 import logging
 from src.custom_types import Canvas, Polygon, Vertices, RGBA
 from copy import deepcopy
@@ -60,22 +59,23 @@ def polygon_mutate(canvas: Canvas, polygon: Polygon) -> Canvas:
     Returns:
         Canvas: Copy of the canvas object with the mutated polygon object.
     """
-    mode = np.random.randint(3)
+    mode = np.random.randint(low=0, high=3)
     canvas_copy = deepcopy(canvas)
+    polygon_copy = deepcopy(polygon)
     if mode == 0:
-        polygon = mutate_vertex(polygon)
-        canvas_copy.replace_polygon(polygon)
+        polygon_copy = mutate_vertex(polygon_copy)
+        canvas_copy.replace_polygon(polygon_copy)
     elif mode == 1:
-        polygon = mutate_color(polygon)
-        canvas_copy.replace_polygon(polygon)
+        polygon_copy = mutate_color(polygon_copy)
+        canvas_copy.replace_polygon(polygon_copy)
     else:
         # Mutate the sequence of polygons
         n_polygons = len(canvas_copy.sequence)
         # Select a random polygon to swap with
-        swap_idx = np.random.randint(n_polygons)
+        swap_idx = np.random.randint(low=0, high=n_polygons)
         # Swap the polygons
         # FIXME: id is not defined yet -- need a way to keep track of the order
-        canvas_copy.swap(polygon.id, swap_idx)
+        canvas_copy.swap(polygon_copy.id, swap_idx)
 
     # TODO: add the new polygon to a copy of the canvas and return that canvas copy
     return canvas_copy
@@ -101,19 +101,21 @@ def mutate_vertex(polygon: Polygon, bounds: tuple[int, int] = DIMS) -> Polygon:
     """
 
     def change_value(value: float, bound: int):
-        mode = np.random.randint(2)
+        mode = np.random.randint(low=0, high=2)
         if mode:
-            # Mutate by a scaled increment
-            increment = check_bound(np.random.randint(0.1 * bound), value, bound)
+            increment = np.random.uniform(0, 0.1) * bound
+            if np.random.rand() < 0.5:
+                increment = -increment
+            increment = check_bound(increment, value, bound)
             value += increment
         else:
             # Mutate by a number in bound
-            value = np.random.randint(bound + 1)
+            value = np.random.randint(low=0, high=bound + 1)
         return value
 
     # print(polygon.xy)
-    vertex_idx = np.random.randint(len(polygon.xy))
-    if np.random.randint(2):
+    vertex_idx = np.random.randint(low=0, high=len(polygon.xy))
+    if np.random.randint(low=0, high=2):
         # Mutate x
         # Changed this to only assign a new value to the chosen coord
         polygon.xy[vertex_idx][0] = change_value(polygon.xy[vertex_idx][0], bounds[0])
@@ -147,7 +149,7 @@ def check_bound(
     Returns:
         int | float: Adjusted increment.
     """
-    if value + increment <= bound:
+    if value + increment <= bound and value + increment >= 0:
         return increment
     return -increment
 
@@ -178,10 +180,13 @@ def mutate_color(polygon: Polygon) -> Polygon:
     """
 
     def change_value(value: float):
-        mode = np.random.randint(2)
+        mode = np.random.randint(low=0, high=2)
         if mode == 0:
             # Mutate by a scaled increment
-            increment = check_bound(np.random.uniform(0, 0.1), value, 1)
+            increment = np.random.uniform(0, 0.1)
+            if np.random.rand() < 0.5:
+                increment = -increment
+            increment = check_bound(increment, value, 1)
             value += increment
         else:
             # Mutate by a number in bound
@@ -189,8 +194,14 @@ def mutate_color(polygon: Polygon) -> Polygon:
         return value
 
     rgba = deepcopy(list(polygon.get_facecolor()))
-    color_idx = np.random.randint(4)
+    color_idx = np.random.randint(low=0, high=4)
     rgba[color_idx] = change_value(rgba[color_idx])
-    polygon.set_color(rgba)
+    if color_idx == 3:
+        # If alpha is mutated, we need to update the polygon color
+        alpha = change_value(rgba[3])
+        polygon.set_alpha(alpha)
+    else:
+        rgb = tuple(rgba[:3])
+        polygon.set_facecolor(rgb)
 
     return polygon
