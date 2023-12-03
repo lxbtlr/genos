@@ -7,11 +7,12 @@ logger = src.log_trace.setup_logger(logger)
 
 if __name__ == "__main__":
     small_test_sim = Simulation(
-        b_image="img/windows.jpg",
+        b_image="img/windows2.jpg",
         o_image="img/test_output.jpg",
-        m_poly=10,
+        m_poly=50,
         stag_lim=100,
-        n_evals=10000,
+        n_evals=50000,
+        min_save=True,
     )
     # run simulation
     logger.info("running sim")

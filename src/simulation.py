@@ -34,17 +34,19 @@ class Simulation:
             - Stagnation limit
             - Number evaluations
             - Number Verticies
+            - Min save
         """
         self.base_image: np.ndarray = np.asarray(Image.open(kwargs.get("b_image")))
         self.output_image = kwargs.get("o_image")
         self.max_polygons: int = kwargs.get("m_poly", 10)
         self.stagnation_limit: int = kwargs.get("stag_lim", 10)
-        self.n_verticies: int = kwargs.get("n_vert", 3)
+        self.n_vertices: int = kwargs.get("n_vert", 3)
         self.num_evals: int = kwargs.get("n_evals", 50000)
+        self.min_save: bool = kwargs.get("min_save", True)
         # NOTE: this value is from the paper
         # Derived class variables
         self.height, self.width = self.base_image.shape[:2]
-        self.canvas = Canvas(list())
+        self.canvas = Canvas(list(), self.base_image.shape[0], self.base_image.shape[1])
         self.counter = 0
         self.canvas = self.create_polygon(self.canvas)
         self.folder_path = make_folder_path()
@@ -174,10 +176,14 @@ class Simulation:
                 self.counter = 0
                 # pushing the better solution
                 self.canvas = newer_solution
+                if self.min_save:
+                    self.save_image(t)
             else:
                 self.counter += 1
                 # keep the old canvas
                 self.canvas = older_solution
+            if not self.min_save:
+                self.save_image(t)
 
             t += 1
 
@@ -237,26 +243,29 @@ class Simulation:
                 self.norm_opti_probs()
             # TODO: incorporate logging at end of loop cycle to track sim status
 
-            # NOTE: this is for debugging purposes
-            fig = Figure(figsize=(self.width / 100, self.height / 100), dpi=100)
-            canvas_agg = FigureCanvasAgg(fig)
-
-            ax = fig.add_subplot()
-            ax.axis("off")
-            ax.set_xlim(0, self.width)
-            ax.set_ylim(0, self.height)
-            ax.add_collection(
-                matplotlib.collections.PatchCollection(
-                    self.canvas.sequence, match_original=True
-                )
-            )
-            canvas_agg.draw()
-            canvas_agg.print_figure(
-                f"{self.folder_path}/{str(t).zfill(len(str(self.num_evals)))}.png",
-                bbox_inches="tight",
-            )
-
         logger.warn("Simulation Complete")
+
+    def save_image(self, t: int):
+        """
+        Save the results of the simulation to disk
+        """
+        # NOTE: this is for debugging purposes
+        fig = Figure(figsize=(self.width / 100, self.height / 100), dpi=100)
+        canvas_agg = FigureCanvasAgg(fig)
+
+        ax = fig.add_subplot()
+        ax.axis("off")
+        ax.set_xlim(0, self.width)
+        ax.set_ylim(0, self.height)
+        ax.add_collection(
+            matplotlib.collections.PatchCollection(
+                self.canvas.sequence, match_original=True
+            )
+        )
+        canvas_agg.draw()
+        canvas_agg.print_figure(
+            f"{self.folder_path}/{str(t).zfill(len(str(self.num_evals)))}.png",
+        )
 
     def write_results(
         self,
