@@ -19,12 +19,14 @@ import time
 import os
 import sys
 
-logger = logging.getLogger(__name__)
-logger = src.log_trace.setup_logger(logger)
+
+_logger = logging.getLogger("__main__")
+logger = _logger.getChild(__name__)
+# logger = src.log_trace.setup_logger(logger)
 
 
 class Simulation:
-    def __init__(self, **kwargs):
+    def __init__(self, folder_path, **kwargs):
         """
         Init simulation.
         Keywords:
@@ -42,15 +44,19 @@ class Simulation:
         self.stagnation_limit: int = kwargs.get("stag_lim", 10)
         self.n_vertices: int = kwargs.get("n_vert", 3)
         self.num_evals: int = kwargs.get("n_evals", 50000)
+<<<<<<< HEAD
         self.min_save: bool = kwargs.get("min_save", True)
+=======
+
+>>>>>>> 2a50d8ea707b99409f4f5f404746dd924d7426fe
         # NOTE: this value is from the paper
         # Derived class variables
         self.height, self.width = self.base_image.shape[:2]
         self.canvas = Canvas(list(), self.base_image.shape[0], self.base_image.shape[1])
         self.counter = 0
         self.canvas = self.create_polygon(self.canvas)
-        self.folder_path = make_folder_path()
 
+        self.folder_path = folder_path
         logger.info(f"Initialize simulation")
 
     def update_probabilities(

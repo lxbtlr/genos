@@ -8,8 +8,8 @@ from copy import deepcopy, copy
 DIMS = (64, 64)
 N_VERTICES_TRI = 3
 
-logger = logging.getLogger(__name__)
-logger = src.log_trace.setup_logger(logger)
+_logger = logging.getLogger("__main__")
+logger = _logger.getChild(__name__)
 
 
 def polygon_init(
@@ -104,6 +104,7 @@ def mutate_vertex(polygon: Polygon, bounds: tuple[int, int] = DIMS) -> Polygon:
     def change_value(value: float, bound: int):
         mode = np.random.randint(low=0, high=2)
         if mode:
+            logger.debug("small increment")
             increment = np.random.uniform(0, 0.1) * bound
             if np.random.rand() < 0.5:
                 increment = -increment
@@ -111,6 +112,7 @@ def mutate_vertex(polygon: Polygon, bounds: tuple[int, int] = DIMS) -> Polygon:
             value += increment
         else:
             # Mutate by a number in bound
+            logger.debug("random value")
             value = np.random.randint(low=0, high=bound + 1)
         return value
 
@@ -195,6 +197,7 @@ def mutate_color(polygon: Polygon) -> Polygon:
         mode = np.random.randint(low=0, high=2)
         if mode == 0:
             # Mutate by a scaled increment
+            logger.debug("small increment")
             increment = np.random.uniform(0, 0.1)
             if np.random.rand() < 0.5:
                 increment = -increment
@@ -202,6 +205,7 @@ def mutate_color(polygon: Polygon) -> Polygon:
             value += increment
         else:
             # Mutate by a number in bound
+            logger.debug("random value")
             value = np.random.rand()
         return value
 
