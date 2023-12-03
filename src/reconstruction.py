@@ -1,14 +1,15 @@
 import numpy as np
 from matplotlib.patches import Polygon
 import logging
+import src.log_trace
 from src.custom_types import Canvas, Polygon, Vertices, RGBA
 from copy import deepcopy
 
 DIMS = (64, 64)
 N_VERTICES_TRI = 3
 
-
 logger = logging.getLogger(__name__)
+logger = src.log_trace.setup_logger(logger)
 
 
 def polygon_init(
@@ -216,5 +217,8 @@ def mutate_color(polygon: Polygon) -> Polygon:
     else:
         rgb = tuple(rgba[:3])
         polygon.set_facecolor(rgb)
-        logger.debug(f"Color mutation: was {old_rgba} now {rgb}")
+        logger.debug(f"Color mutation: was {list(polygon.get_facecolor())} now {rgb}")
+        logger.debug(
+            f"Color mutation: diff {[a_i - b_i for a_i, b_i in zip(old_rgba, rgb)]}"
+        )
     return polygon

@@ -9,9 +9,9 @@ if __name__ == "__main__":
     small_test_sim = Simulation(
         b_image="img/windows.jpg",
         o_image="img/test_output.jpg",
-        m_poly=50,
+        m_poly=10,
         stag_lim=100,
-        n_evals=50000,
+        n_evals=10000,
     )
     # run simulation
     logger.info("running sim")

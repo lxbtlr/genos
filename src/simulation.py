@@ -77,7 +77,7 @@ class Simulation:
         """
         Evaluate an image to the base_image and return the SAD
         """
-        return complete_percent(self.base_image, image.image(), sad)
+        return sad(self.base_image, image.image())
 
     def cc_loss(self, parent: Canvas, child: Canvas) -> tuple[float, float]:
         """

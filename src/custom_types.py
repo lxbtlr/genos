@@ -142,7 +142,7 @@ class Canvas:
         canvas_agg.draw()
         rgba = np.asarray(canvas_agg.buffer_rgba())
 
-        return rgba[:, :, :3] / 255
+        return rgba[:, :, :3]
 
 
 if __name__ == "__main__":
