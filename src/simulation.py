@@ -231,20 +231,20 @@ class Simulation:
             # TODO: incorporate logging at end of loop cycle to track sim status
 
             # NOTE: this is for debugging purposes
-            # fig = Figure(figsize=(self.width / 100, self.height / 100), dpi=100)
-            # canvas_agg = FigureCanvasAgg(fig)
+            fig = Figure(figsize=(self.width / 100, self.height / 100), dpi=100)
+            canvas_agg = FigureCanvasAgg(fig)
 
-            # ax = fig.add_subplot()
-            # ax.axis("off")
-            # ax.set_xlim(0, self.width)
-            # ax.set_ylim(0, self.height)
-            # ax.add_collection(
-            #     matplotlib.collections.PatchCollection(
-            #         self.canvas.sequence, match_original=True
-            #     )
-            # )
-            # canvas_agg.draw()
-            # canvas_agg.print_figure(f"./out/{t}.png", bbox_inches="tight")
+            ax = fig.add_subplot()
+            ax.axis("off")
+            ax.set_xlim(0, self.width)
+            ax.set_ylim(0, self.height)
+            ax.add_collection(
+                matplotlib.collections.PatchCollection(
+                    self.canvas.sequence, match_original=True
+                )
+            )
+            canvas_agg.draw()
+            canvas_agg.print_figure(f"./out/{t}.png", bbox_inches="tight")
 
         logger.warn("Simulation Complete")
 
