@@ -36,7 +36,7 @@ Installing these libraies through your prefered method is fine -- I personally u
 nix-shell default.nix
 ```
 
-# Usage (Needs to be fleshed out)
+# Usage
 
 This algoritm can be _very_ memory intensive, even with small images (256x256) and takes a long time to generate even on powerful hardware. The referenced paper uses a "workstation powered by two Intel Xeon Gold 5218R CPUs with 64 GB memory," benchmarks for the implementation of the ProHC-EM algorithm taking about 12 minutes to generate a single output image.
 
@@ -57,13 +57,15 @@ To learn more about the arguments that can be passed into this model, run:
 python model.py -h
 ```
 
-To see more of the step by step processing that is going on under the hood, pass the debug
-flag (as shown below) to toggle what information is passed to the output logfiles. To make the output more understandable I
-would recommend starting with a low complexity set up.
+To see more of the step by step processing that is going on under the hood, pass the debug flag (as shown below) to toggle what information is passed to the output logfiles. To make the output more understandable I would recommend starting with a low complexity set up.
 
 ```
-TODO / TBA
 python model.py --debug
+```
+
+To create something similar to the example provided, use this (this took <5 minutes to run on my laptop):
+```
+python model.py -b img/cuttlefish.jpg -p 50 -e 10000 -s 100
 ```
 
 # Procedure
