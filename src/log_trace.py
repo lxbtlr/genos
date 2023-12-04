@@ -18,14 +18,18 @@ def setup_logger(
 
     formatter = logging.Formatter(log_format, datefmt="%H:%M:%S")
 
+    file_handler = logging.FileHandler(filename=f"{name}.log", mode="w")
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+
     if mode == True:
         ch = logging.StreamHandler()
-        logger.addHandler(ch)
         ch.setFormatter(formatter)
-    elif mode == False:
+        logger.addHandler(ch)
+    else:
         file_handler = logging.FileHandler(filename=f"{name}.log", mode="w")
-        logger.addHandler(file_handler)
         file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
 
     return logger
 

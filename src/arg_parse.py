@@ -52,14 +52,14 @@ parser.add_argument(
 parser.add_argument(
     "-m",
     "--min-save",
-    type=bool,
+    action="store_true",
     default=True,
     help="Save only images that are improving the current generation's fitness score (default=True)",
 )
 
 parser.add_argument(
     "--stream-mode",
-    type=bool,
+    action="store_true",
     default=False,
     help="Sets the logger handler mode where FALSE pushes the stream to a file and TRUE pushes the stream to the terminal (default=False)",
 )
