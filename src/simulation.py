@@ -43,11 +43,7 @@ class Simulation:
         self.stagnation_limit: int = kwargs.get("stag_lim", 10)
         self.n_vertices: int = kwargs.get("n_vert", 3)
         self.num_evals: int = kwargs.get("n_evals", 50000)
-<<<<<<< HEAD
         self.min_save: bool = kwargs.get("min_save", True)
-=======
-
->>>>>>> 2a50d8ea707b99409f4f5f404746dd924d7426fe
         # NOTE: this value is from the paper
         # Derived class variables
         self.height, self.width = self.base_image.shape[:2]

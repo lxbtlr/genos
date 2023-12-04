@@ -36,7 +36,6 @@ def mk_folder_path(
     @return str The abs. path to the folder
     """
 
-    # TODO: check this with Carrie to make sure it will play nice with cluster
     script_loc = os.path.dirname(os.path.abspath(sys.argv[0]))
     folder_path = os.path.join(script_loc, f"{folder_name}", sub_fldr_name)
 
