@@ -218,4 +218,36 @@ Here's an excerpt from the paper that explains how the energy map is used in the
 
 The ProHC-EM algorithm is complex to implement and even more difficult to debug. Another complexity is the fact we ran this project in a remote headless environment. To tackle both of these problems, we opted to create and use a custom logger handler. This logger is initiated in each file and records debug / info information for us into a centralized log file.
 
-INSERT example logfile here
+```log
+21:50:53 :: simulati :: I :: time:34, Polygons: 1, baseline loss 1522708
+21:50:53 :: simulati :: D :: Polgon selected: 0, indx: 0, (p=[1.])
+21:50:53 :: reconstr :: D :: random value
+21:50:53 :: reconstr :: D :: random value
+21:50:53 :: reconstr :: D :: Color mutation (alpha): was 0.20663608916122977 now 0.4725264692828979
+21:50:53 :: simulati :: D :: parent: 1522708 | child: 1522708
+21:50:53 :: simulati :: I :: time:35, Polygons: 1, baseline loss 1522708
+21:50:53 :: simulati :: D :: Polgon selected: 0, indx: 0, (p=[1.])
+21:50:53 :: simulati :: D :: parent: 1522708 | child: 1522708
+21:50:53 :: simulati :: I :: time:36, Polygons: 1, baseline loss 1522708
+21:50:53 :: simulati :: D :: Polgon selected: 0, indx: 0, (p=[1.])
+21:50:53 :: reconstr :: D :: random value
+21:50:53 :: reconstr :: D :: random value
+21:50:53 :: reconstr :: D :: Color mutation (alpha): was 0.6657094847604847 now 0.7994360656151909
+21:50:53 :: simulati :: D :: parent: 1522708 | child: 1522708
+21:50:53 :: simulati :: I :: time:37, Polygons: 1, baseline loss 1522708
+21:50:53 :: simulati :: D :: Polgon selected: 0, indx: 0, (p=[1.])
+21:50:53 :: reconstr :: D :: small increment
+21:50:53 :: reconstr :: D :: Bounds: increment (0.07954313356489995) is in bounds
+21:50:53 :: reconstr :: D :: Color mutation: was [0.4310893416404724, 0.25377511978149414, 0.11005479097366333] now (0.4310893416404724, 0.25377511978149414, 0.18959792453856328)
+21:50:53 :: reconstr :: D :: Color mutation: diff [0.0, 0.0, -0.07954313356489995]
+21:50:53 :: simulati :: D :: parent: 1522708 | child: 1522708
+21:50:53 :: simulati :: I :: time:38, Polygons: 1, baseline loss 1522708
+21:50:53 :: simulati :: D :: Polgon selected: 0, indx: 0, (p=[1.])
+21:50:53 :: simulati :: D :: parent: 1522708 | child: 1522708
+21:50:53 :: simulati :: I :: time:39, Polygons: 1, baseline loss 1522708
+21:50:53 :: simulati :: D :: Polgon selected: 0, indx: 0, (p=[1.])
+21:50:53 :: reconstr :: D :: Vertex chosen: 1
+21:50:53 :: reconstr :: D :: random value
+21:50:53 :: reconstr :: D :: Vertex mutation (Y): was 0.0 now 56.0
+21:50:53 :: simulati :: D :: parent: 1522708 | child: 1522708
+```
