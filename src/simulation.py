@@ -39,12 +39,20 @@ class Simulation:
             - Min save
         """
         self.base_image: np.ndarray = np.asarray(
-            Image.open(
-                kwargs.get("b_image", "./img/windows.jpg")
-                if kwargs.get("b_image")
-                else "./img/windows.jpg"
-            )
+            Image.open(kwargs.get("b_image", "./img/windows.jpg"))
         )
+        self.base_image = self.base_image[
+            : self.base_image.shape[0] - 1
+            if self.base_image.shape[0] % 2 == 1
+            else self.base_image.shape[0],
+            : self.base_image.shape[1] - 1
+            if self.base_image.shape[1] % 2 == 1
+            else self.base_image.shape[1],
+            :,
+        ]
+        print(self.base_image.shape)
+        self.height, self.width = self.base_image.shape[:2]
+
         self.max_polygons: int = kwargs.get("m_poly", 10)
         self.stagnation_limit: int = kwargs.get("stag_lim", 100)
         self.n_vertices: int = kwargs.get("n_vert", 3)
@@ -53,6 +61,7 @@ class Simulation:
         self.num_evals: int = kwargs.get("n_evals", 50000)
         self.min_save: bool = kwargs.get("min_save", True)
         self.height, self.width = self.base_image.shape[:2]
+        print(self.height, self.width)
         self.canvas = Canvas(
             sequence=list(),
             height=self.base_image.shape[0],
