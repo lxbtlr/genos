@@ -24,9 +24,9 @@ There are a few dependencies for this project that need to be installed for the 
   numpy
   ```
 - (Optional) dependencies for other features:
-    ```
-    imagemagick
-    ```
+  ```
+  imagemagick
+  ```
 
 ### Nix
 
@@ -183,7 +183,7 @@ $$
 CP = \frac {L_{blank} - L_{recon}}{L_{blank}} \times 100
 $$
 
-$CP$ is used so that the performance could be compared across different starting images.
+$CP$ is used so that the performance could be compared across different starting images, but in the computations of the algorithm, we will use the loss function $L$.
 
 ## Energy Map
 
