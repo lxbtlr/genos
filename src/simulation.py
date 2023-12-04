@@ -286,10 +286,12 @@ class Simulation:
 
         logger.warn("Simulation Complete")
 
-    def save_image(self, t: int):
+    def save_image(self, t: int | str, *, data: Canvas | None = None):
         """
         Save the results of the simulation to disk
         """
+        if data is None:
+            data = self.canvas
         # NOTE: this is for debugging purposes
         fig = Figure(figsize=(self.width / 100, self.height / 100), dpi=100)
         canvas_agg = FigureCanvasAgg(fig)
@@ -299,9 +301,7 @@ class Simulation:
         ax.set_xlim(0, self.width)
         ax.set_ylim(0, self.height)
         ax.add_collection(
-            matplotlib.collections.PatchCollection(
-                self.canvas.sequence, match_original=True
-            )
+            matplotlib.collections.PatchCollection(data.sequence, match_original=True)
         )
         canvas_agg.draw()
         logger.info(
@@ -319,25 +319,14 @@ class Simulation:
         Save the results of the simulation to disk
         if generations is made true, save all the saved generations up to the final result
         """
-
-        fig = Figure(figsize=(self.width / 100, self.height / 100), dpi=100)
-        canvas_agg = FigureCanvasAgg(fig)
-
-        ax = fig.add_subplot()
-        ax.axis("off")
-        ax.set_xlim(0, self.width)
-        ax.set_ylim(0, self.height)
-        ax.add_collection(
-            matplotlib.collections.PatchCollection(
-                self.canvas.sequence, match_original=True
-            )
+        self.save_image(
+            t="output",
         )
-        mpl.savefig(self.folder_path + "/output.png", bbox_inches="tight")
         # visualize_canvas(self.canvas)
         logger.debug(f"Include generations: {include_generations}")
         if include_generations:
-            for num, gen in enumerate(self.generations):
-                self.save_image(t=num)
+            for num, generation in enumerate(self.generations):
+                self.save_image(t=f"generation_{num}", data=generation)
 
         return
 

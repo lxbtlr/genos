@@ -12,21 +12,23 @@ simulation_data_folder = src.log_trace.mk_folder_path(
     folder_name="playground", sub_fldr_name=str(START_TIME)
 )
 
-# NOTE: Create logger and set the log file in the simulation environment we just made
 logger = logging.getLogger(__name__)
 logger = src.log_trace.setup_logger(
-    logger, name="/".join([simulation_data_folder, "simulation"])
+    logger,
+    name="/".join([simulation_data_folder, "simulation"]),
+    debug_level=False,
+    mode=False,
 )
 
 
 if __name__ == "__main__":
     small_test_sim = Simulation(
         folder_path=simulation_data_folder,
-        b_image="img/windows2.jpg",
+        b_image="img/1.png",
         o_image="img/test_output.jpg",
-        m_poly=20,
-        stag_lim=100,
-        n_evals=20000,
+        m_poly=50,
+        stag_lim=30,
+        n_evals=50000,
         min_save=True,
     )
     # run simulation

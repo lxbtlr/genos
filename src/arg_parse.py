@@ -2,8 +2,6 @@ from argparse import ArgumentParser
 import src.log_trace
 import logging
 
-logger = logging.getLogger(__name__)
-logger = src.log_trace.setup_logger(logger)
 
 parser = ArgumentParser(
     description="A Progressive Hill Climbing Image Reconstruction Script"
@@ -28,7 +26,7 @@ parser.add_argument(
 
 
 parser.add_argument(
-    "-g",
+    "-p",
     "--max-polygons",
     type=int,
     default=10,
@@ -36,7 +34,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "-i",
+    "-e",
     "--max-evaluations",
     type=int,
     default=50000,
@@ -60,18 +58,22 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "-d", "--debug", action="store_true", default=False, help="Toggle the debug flag"
+    "--stream-mode",
+    type=bool,
+    default=False,
+    help="Sets the logger handler mode where FALSE pushes the stream to a file and TRUE pushes the stream to the terminal (default=False)",
+)
+
+parser.add_argument(
+    "-d",
+    "--debug",
+    action="store_true",
+    default=False,
+    help="Toggle the debug flag, this directly controls the minimum logging level of the logging handler (default=False)",
 )
 
 args = parser.parse_args()
 
-logger.debug(
-    f"""Max Generations: {args.max_polygons}
-Max Evaluations: {args.max_evaluations}
-Stagnation Limits: {args.stagnation_limit}
-Min Save: {args.min_save}
-Debug State: {args.debug}"""
-)
 
 # HACK: this allows for global flags to be passed onto other files
 FLAGS = {"debug": args.debug}

@@ -4,23 +4,25 @@ import sys
 import time
 
 
-def setup_logger(logger, *, name="simulation") -> logging.Logger:
+def setup_logger(
+    logger, *, name: str = "simulation", debug_level: bool = False, mode: bool = False
+) -> logging.Logger:
     """
     Create a standardized logger for this module
     """
-    mode = 0
     log_format = "%(asctime)-8s :: %(module)-.8s :: %(levelname)-.1s :: %(message)s"
-
-    logger.setLevel("DEBUG")
+    if debug_level:
+        logger.setLevel("INFO")
+    else:
+        logger.setLevel("DEBUG")
 
     formatter = logging.Formatter(log_format, datefmt="%H:%M:%S")
 
-    if mode:
+    if mode == True:
         ch = logging.StreamHandler()
-        ch.setLevel(logging.DEBUG)
         logger.addHandler(ch)
         ch.setFormatter(formatter)
-    else:
+    elif mode == False:
         file_handler = logging.FileHandler(filename=f"{name}.log", mode="w")
         logger.addHandler(file_handler)
         file_handler.setFormatter(formatter)

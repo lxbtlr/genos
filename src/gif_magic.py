@@ -64,10 +64,10 @@ def create_gif(input_dir, output_file, delay=0.1):
 
 
 if __name__ == "__main__":
-    input_directory = args.input  # Replace with your input directory
+    input_directory = args.input_dir  # Replace with your input directory
     output_filename = "/".join(
-        [args.output, "output.gif"]
+        [args.output_dir, "output.gif"]
     )  # Replace with your output GIF filename
-    frame_delay = args.output  # Delay between frames in milliseconds
+    frame_delay = args.delay  # Delay between frames in milliseconds
 
     create_gif(input_directory, output_filename, frame_delay)
