@@ -18,5 +18,6 @@ in mkShell {
       ps.matplotlib
       ps.pyyaml
     ]))
+    imagemagick
   ];
 }
