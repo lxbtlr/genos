@@ -4,20 +4,32 @@ import sys
 import time
 
 
-def setup_logger() -> logging.Logger:
+def setup_logger(
+    logger, *, name: str = "simulation", debug_level: bool = False, mode: bool = False
+) -> logging.Logger:
     """
     Create a standardized logger for this module
     """
-    log_format = "%(asctime)s :: %(name)s :: %(module)s :: %(levelname)s :: %(message)s"
+    log_format = "%(asctime)-8s :: %(module)-.8s :: %(levelname)-.1s :: %(message)s"
+    if debug_level:
+        logger.setLevel("INFO")
+    else:
+        logger.setLevel("DEBUG")
 
-    logger = logging.getLogger(__name__)
-    logger.setLevel("DEBUG")
+    formatter = logging.Formatter(log_format, datefmt="%H:%M:%S")
 
-    file_handler = logging.FileHandler(filename="simulation.log", mode="a")
+    file_handler = logging.FileHandler(filename=f"{name}.log", mode="w")
+    file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
 
-    formatter = logging.Formatter(log_format)
-    file_handler.setFormatter(formatter)
+    if mode == True:
+        ch = logging.StreamHandler()
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
+    else:
+        file_handler = logging.FileHandler(filename=f"{name}.log", mode="w")
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
 
     return logger
 
@@ -30,7 +42,6 @@ def mk_folder_path(
     @return str The abs. path to the folder
     """
 
-    # TODO: check this with Carrie to make sure it will play nice with cluster
     script_loc = os.path.dirname(os.path.abspath(sys.argv[0]))
     folder_path = os.path.join(script_loc, f"{folder_name}", sub_fldr_name)
 
@@ -41,6 +52,7 @@ def mk_folder_path(
 
 
 if __name__ == "__main__":
-    logger = setup_logger()
+    logger = logging.getLogger(__name__)
+    logger = setup_logger(logger)
     logger.info("This is a test")
     logger.debug("THIS IS  A DEBUG MSG")

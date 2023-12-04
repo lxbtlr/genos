@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.collections import PatchCollection
-from src.custom_types import Canvas, Polygon, Vertex, RGBA
+from src.custom_types import Canvas, Polygon, Vertices, RGBA
 
 DIMS = (64, 64)
 
@@ -34,7 +34,7 @@ if __name__ == "__main__":
 
     for i in range(10):
         polygon = Polygon(
-            Vertex(np.random.rand(3, 1) * DIMS[0], np.random.rand(3, 1) * DIMS[1]),
+            Vertices(np.random.rand(3, 1) * DIMS[0], np.random.rand(3, 1) * DIMS[1]),
             RGBA(
                 np.random.rand(),
                 np.random.rand(),
