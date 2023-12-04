@@ -38,11 +38,15 @@ class Simulation:
             - Number Verticies
             - Min save
         """
-        self.base_image: np.ndarray = np.asarray(Image.open(kwargs.get("b_image")))
+        self.base_image: np.ndarray = np.asarray(
+            Image.open(
+                kwargs.get("b_image") if kwargs.get("b_image") else "./img/windows.jpg"
+            )
+        )
         self.max_polygons: int = kwargs.get("m_poly", 10)
-        self.stagnation_limit: int = kwargs.get("stag_lim", 10)
+        self.stagnation_limit: int = kwargs.get("stag_lim", 100)
         self.n_vertices: int = kwargs.get("n_vert", 3)
-        self.num_evals: int = kwargs.get("n_evals", 50000)
+        self.num_evals: int = kwargs.get("n_evals", 10000)
         self.min_save: bool = kwargs.get("min_save", True)
         # NOTE: this value is from the paper
         # Derived class variables
@@ -326,8 +330,10 @@ class Simulation:
                 self.canvas.sequence, match_original=True
             )
         )
-        mpl.savefig(self.folder_path + "/output.png", bbox_inches="tight")
-        # visualize_canvas(self.canvas)
+        canvas_agg.draw()
+        canvas_agg.print_figure(
+            f"{self.folder_path}/output.png",
+        )
 
         if generations:
             pass
@@ -335,7 +341,6 @@ class Simulation:
         # TODO: add mkfldr
         # TODO: save images to dir
         # TODO: save other simulation data to that folder
-        return
 
 
 def make_folder_path(
