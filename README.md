@@ -23,7 +23,7 @@ There are a few dependencies for this project that need to be installed for the 
     ```
 - (Optional) dependencies for other features:
     ```
-    TODO / TBA
+    imagemagick
     ```
 
 ### Nix
@@ -34,7 +34,7 @@ nix-shell default.nix
 
 # Usage (Needs to be fleshed out)
 
-This algoritm is _very_ memory intensive, even with small images (256x256) and takes a long time to generate even on powerful hardware. The referenced paper uses a "workstation powered by two Intel Xeon Gold 5218R CPUs with 64 GB memory," benchmarks for the implementation of the ProHC-EM algorithm taking about 12 minutes to generate a single output image.
+This algoritm can be _very_ memory intensive, even with small images (256x256) and takes a long time to generate even on powerful hardware. The referenced paper uses a "workstation powered by two Intel Xeon Gold 5218R CPUs with 64 GB memory," benchmarks for the implementation of the ProHC-EM algorithm taking about 12 minutes to generate a single output image.
 
 Due to local hardware constraints, we used a remote computing cluster to generate our more computationally complex outputs. Our `runner_script.sh` file is an artifact of this.
 
