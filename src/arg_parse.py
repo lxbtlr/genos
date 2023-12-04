@@ -53,8 +53,8 @@ parser.add_argument(
     "-m",
     "--min-save",
     action="store_true",
-    default=True,
-    help="Save only images that are improving the current generation's fitness score (default=True)",
+    default=False,
+    help="Save only images that are improving the current generation's fitness score (default=False)",
 )
 
 parser.add_argument(
