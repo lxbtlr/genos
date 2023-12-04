@@ -17,7 +17,7 @@ export PATH=/project/ct-scicomp/pythonlibs/bin:$PATH
 # export PATH=/project/ct-scicomp/find_orb_lib/find_orb:/$PATH
 
 module load python3/3.10.12
-pip install --no-cache-dir --prefix=/project/ct-scicomp/pythonlibs/ imageio 'imageio[ffmeg]' 'imageio[pyav]'
+pip install --no-cache-dir --prefix=/project/ct-scicomp/pythonlibs/ imageio 'imageio[ffmpeg]' 'imageio[pyav]'
 python3 animation.py
 # add correct args for script
 
