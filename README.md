@@ -30,6 +30,7 @@ There are a few dependencies for this project that need to be installed for the 
 - (Optional) dependencies for other features:
   ```
   imagemagick
+  imageio
   ```
 
 ### Nix
