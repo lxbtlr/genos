@@ -18,7 +18,10 @@ export PATH=/project/ct-scicomp/pythonlibs/bin:$PATH
 
 module load python3/3.10.12
 pip install --no-cache-dir --prefix=/project/ct-scicomp/pythonlibs/ matplotlib
-python model.py -b img/alex.jpg -p 200 -e 1000000 -s 100
+python model.py -b img/cuttlefish.jpg -p 100 -e 100000 -s 100
+python model.py -b img/alex.jpg -p 100 -e 100000 -s 100
+python model.py -b img/husky.jpg -p 100 -e 100000 -s 100
+python model.py -b img/chrome.jpg -p 100 -e 100000 -s 100
 # add correct args for script
 
 # qsub runner_script.sh
