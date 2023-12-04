@@ -5,6 +5,10 @@ This project aims to implement meta-heuristic search algorithm for image reconst
 1. Polygons used for image reconstruction is _progressively_ added per generation rather than all at once.
 2. Re/initialization of polygons uses energy map as a _meta-heuristic_.
 
+## Example implementation
+| ![](https://raw.githubusercontent.com/olincollege/scicomp-p3-genos/main/playground/example/output.gif) | ![base_image](https://github.com/olincollege/scicomp-p3-genos/assets/45553575/045826ab-a7f3-4e33-adc7-730f57db8e96) |
+|--|--|
+
 # Installation
 
 To install, clone this repository and install its dependencies.
