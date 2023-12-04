@@ -39,9 +39,7 @@ class Simulation:
             - Min save
         """
         self.base_image: np.ndarray = np.asarray(
-            Image.open(
-                kwargs.get("b_image") if kwargs.get("b_image") else "./img/windows.jpg"
-            )
+            Image.open(kwargs.get("b_image", "./img/windows.jpg"))
         )
         self.max_polygons: int = kwargs.get("m_poly", 10)
         self.stagnation_limit: int = kwargs.get("stag_lim", 100)
