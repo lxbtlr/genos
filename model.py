@@ -1,7 +1,6 @@
 from src.simulation import Simulation
 import src.log_trace
 import logging
-
 from src.arg_parse import args
 import time
 

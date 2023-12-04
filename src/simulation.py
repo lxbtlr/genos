@@ -38,9 +38,13 @@ class Simulation:
             - Number Verticies
             - Min save
         """
-        self.base_image: np.ndarray = np.asarray(Image.open(kwargs.get("b_image")))
+        self.base_image: np.ndarray = np.asarray(
+            Image.open(
+                kwargs.get("b_image") if kwargs.get("b_image") else "./img/windows.jpg"
+            )
+        )
         self.max_polygons: int = kwargs.get("m_poly", 10)
-        self.stagnation_limit: int = kwargs.get("stag_lim", 10)
+        self.stagnation_limit: int = kwargs.get("stag_lim", 100)
         self.n_vertices: int = kwargs.get("n_vert", 3)
         # NOTE: this value is from the paper
         # Derived class variables
