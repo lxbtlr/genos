@@ -9,6 +9,10 @@ __pycache__/
 # Nix
 .envrc
 
+# folders
+img/*
+playground/*
+
 # C extensions
 *.so
 

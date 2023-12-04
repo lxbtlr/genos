@@ -24,7 +24,7 @@ if __name__ == "__main__":
         folder_path=simulation_data_folder,
         b_image="img/windows2.jpg",
         o_image="img/test_output.jpg",
-        m_poly=50,
+        m_poly=20,
         stag_lim=100,
         n_evals=20000,
         min_save=True,

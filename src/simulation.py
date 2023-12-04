@@ -42,12 +42,16 @@ class Simulation:
         self.max_polygons: int = kwargs.get("m_poly", 10)
         self.stagnation_limit: int = kwargs.get("stag_lim", 10)
         self.n_vertices: int = kwargs.get("n_vert", 3)
-        self.num_evals: int = kwargs.get("n_evals", 50000)
-        self.min_save: bool = kwargs.get("min_save", True)
         # NOTE: this value is from the paper
         # Derived class variables
+        self.num_evals: int = kwargs.get("n_evals", 50000)
+        self.min_save: bool = kwargs.get("min_save", True)
         self.height, self.width = self.base_image.shape[:2]
-        self.canvas = Canvas(list(), self.base_image.shape[0], self.base_image.shape[1])
+        self.canvas = Canvas(
+            sequence=list(),
+            height=self.base_image.shape[0],
+            width=self.base_image.shape[1],
+        )
         self.counter = 0
         self.canvas = self.create_polygon(self.canvas)
 
@@ -150,7 +154,7 @@ class Simulation:
         # initialize vars
         t = 0
 
-        generations = [deepcopy(self.canvas)]
+        self.generations = [deepcopy(self.canvas)]
 
         newer_solution = None
         older_solution = None
@@ -193,7 +197,7 @@ class Simulation:
                 # NOTE: this is the same as the above code, but without any mutations
 
                 # compare and compute the child with the parent loss
-                older_solution = deepcopy(generations[-1])
+                older_solution = deepcopy(self.generations[-1])
                 reinit_solution = self.canvas
                 l_parent, l_reinit = self.cc_loss(older_solution, reinit_solution)
 
@@ -217,7 +221,7 @@ class Simulation:
                 if l_parent < v_k:
                     logger.warn("Child solution improves on parent, adding new polygon")
                     # update the canvas to the improved version
-                    generations.append(deepcopy(self.canvas))
+                    self.generations.append(deepcopy(self.canvas))
                     self.canvas = self.create_polygon(self.canvas)
 
                     v_k = l_parent
@@ -231,7 +235,7 @@ class Simulation:
                     # reinit polygon
                     #  This is attempting to perform a rollback
                     is_reinit = True
-                    previous_generation = deepcopy(generations[-1])
+                    previous_generation = deepcopy(self.generations[-1])
                     picked_verts = vertices_em(
                         self.base_image,
                         previous_generation.image(),
@@ -279,7 +283,6 @@ class Simulation:
                 # Once we reach the maximum number of generations, now we can
                 # send the rest of our cycles optimizing all polygons
                 self.norm_opti_probs()
-            # TODO: incorporate logging at end of loop cycle to track sim status
 
         logger.warn("Simulation Complete")
 
@@ -301,13 +304,16 @@ class Simulation:
             )
         )
         canvas_agg.draw()
+        logger.info(
+            f"Writing image to disc, '{self.folder_path}/{str(t).zfill(len(str(self.num_evals)))}.png'"
+        )
         canvas_agg.print_figure(
             f"{self.folder_path}/{str(t).zfill(len(str(self.num_evals)))}.png",
         )
 
     def write_results(
         self,
-        generations: bool = False,
+        include_generations: bool = False,
     ):
         """
         Save the results of the simulation to disk
@@ -328,13 +334,11 @@ class Simulation:
         )
         mpl.savefig(self.folder_path + "/output.png", bbox_inches="tight")
         # visualize_canvas(self.canvas)
+        logger.debug(f"Include generations: {include_generations}")
+        if include_generations:
+            for num, gen in enumerate(self.generations):
+                self.save_image(t=num)
 
-        if generations:
-            pass
-
-        # TODO: add mkfldr
-        # TODO: save images to dir
-        # TODO: save other simulation data to that folder
         return
 
 
