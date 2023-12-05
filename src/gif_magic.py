@@ -33,14 +33,18 @@ def create_gif(input_dir, output_file, delay=0.1):
         print(f"Error: Input directory '{input_dir}' does not exist.")
         return
 
-    # Get a list of image files in the input directory
     image_files = sorted(
-        [
-            f
-            for f in os.listdir(input_dir)
-            if f.lower().endswith((".png", ".jpg", ".jpeg", ".gif", ".bmp"))
-        ]
+        [file for file in os.listdir(input_dir) if file.endswith(".png")]
     )
+    print(image_files)
+    # Get a list of image files in the input directory
+    # image_files = sorted(
+    #     [
+    #         f
+    #         for f in os.listdir(input_dir)
+    #         if f.lower().endswith((".png", ".jpg", ".jpeg", ".gif", ".bmp"))
+    #     ]
+    # )
 
     if not image_files:
         print(f"No image files found in '{input_dir}'.")

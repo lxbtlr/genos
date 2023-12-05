@@ -211,7 +211,7 @@ def mutate_color(polygon: Polygon) -> Polygon:
 
     rgba = deepcopy(list(polygon.get_facecolor()))
     old_rgba = deepcopy(rgba)
-    color_idx = np.random.randint(low=0, high=4)
+    color_idx = np.random.randint(low=0, high=3)
     rgba[color_idx] = change_value(rgba[color_idx])
     if color_idx == 3:
         # If alpha is mutated, we need to update the polygon color

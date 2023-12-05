@@ -17,6 +17,7 @@ in mkShell {
       ps.scipy
       ps.matplotlib
       ps.pyyaml
+      ps.imageio
     ]))
     imagemagick
   ];

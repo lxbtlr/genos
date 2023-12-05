@@ -1,8 +1,7 @@
-from src.custom_types import Polygon, Vertices, RGBA, Canvas
+from src.custom_types import Polygon, Vertices, RGBA, Canvas, render
 from src.reconstruction import polygon_mutate
 from src.visualize import add_polygon
 
-import matplotlib.pyplot as mpl
 import matplotlib.patches
 import matplotlib.collections
 from matplotlib.figure import Figure
@@ -11,7 +10,6 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 from src.loss import complete_percent, sad
 from PIL import Image
 from copy import deepcopy
-import src.log_trace
 import logging
 from numpy import array
 import numpy as np
@@ -62,10 +60,12 @@ class Simulation:
         self.height, self.width = self.base_image.shape[:2]
 
         self.canvas = Canvas(
+            fig_face_color=np.mean(self.base_image, axis=(0, 1)) / 255,
             sequence=list(),
             height=self.base_image.shape[0],
             width=self.base_image.shape[1],
         )
+        print(self.canvas.fig_face_color)
         self.counter = 0
         self.canvas = self.create_polygon(self.canvas)
 
@@ -306,23 +306,14 @@ class Simulation:
         """
         if data is None:
             data = self.canvas
-        # NOTE: this is for debugging purposes
-        fig = Figure(figsize=(self.width / 100, self.height / 100), dpi=100)
-        canvas_agg = FigureCanvasAgg(fig)
 
-        ax = fig.add_subplot()
-        ax.axis("off")
-        ax.set_xlim(0, self.width)
-        ax.set_ylim(0, self.height)
-        ax.add_collection(
-            matplotlib.collections.PatchCollection(data.sequence, match_original=True)
-        )
-        canvas_agg.draw()
+        canvas_agg = render(data)
         logger.info(
             f"Writing image to disc, '{self.folder_path}/{str(t).zfill(len(str(self.num_evals)))}.png'"
         )
         canvas_agg.print_figure(
             f"{self.folder_path}/{str(t).zfill(len(str(self.num_evals)))}.png",
+            facecolor=data.fig_face_color,
         )
 
     def write_results(

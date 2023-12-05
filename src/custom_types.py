@@ -76,6 +76,7 @@ class Canvas:
     Datatype representing a sequence of polygons on a canvas
     """
 
+    fig_face_color: ndarray
     sequence: list[Polygon]
     width: int
     height: int
@@ -125,26 +126,37 @@ class Canvas:
         """
         get all id's of the polygons in the order they appear in the sequence
         """
-        return array([i.id for i in self.sequence])
+        return array([i._id for i in self.sequence])
 
     def image(self):
         """
         Composite all polygons into an image
         """
-        fig = Figure(figsize=(self.width / 100, self.height / 100), dpi=100)
-        canvas_agg = FigureCanvasAgg(fig)
-
-        ax = fig.add_subplot()
-        ax.axis("off")
-        ax.set_xlim(0, self.width)
-        ax.set_ylim(0, self.height)
-        ax.add_collection(
-            matplotlib.collections.PatchCollection(self.sequence, match_original=True)
-        )
-        canvas_agg.draw()
+        canvas_agg = render(self)
         rgba = np.asarray(canvas_agg.buffer_rgba())
 
         return rgba[:, :, :3]
+
+
+def render(
+    canvas: Canvas,
+):
+    """
+    render the patch collection: this serves as a standard method to do so
+    """
+    fig = Figure(figsize=(canvas.width / 100, canvas.height / 100), dpi=100)
+    canvas_agg = FigureCanvasAgg(fig)
+
+    ax = fig.add_subplot()
+    ax.patch.set_facecolor(canvas.fig_face_color)
+    ax.axis("off")
+    ax.set_xlim(0, canvas.width)
+    ax.set_ylim(0, canvas.height)
+    ax.add_collection(
+        matplotlib.collections.PatchCollection(canvas.sequence, match_original=True)
+    )
+    canvas_agg.draw()
+    return canvas_agg
 
 
 if __name__ == "__main__":
