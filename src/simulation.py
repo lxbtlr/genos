@@ -57,6 +57,7 @@ class Simulation:
         # Derived class variables
         self.num_evals: int = kwargs.get("n_evals", 50000)
         self.min_save: bool = kwargs.get("min_save", True)
+        self.no_save: bool = kwargs.get("no_save", False)
         self.height, self.width = self.base_image.shape[:2]
 
         self.canvas = Canvas(
@@ -178,10 +179,13 @@ class Simulation:
         # print(self.num_evals)
         logger.info(f"Running Simulation, baseline loss: {v_k}")
 
+        checkpoints = np.linspace(0, self.num_evals, 1000)
+
         while t <= self.num_evals:
             logger.info(
                 f"time:{t}, Polygons: {self.canvas.how_many()}, baseline loss {v_k}"
             )
+
             if not is_reinit:
                 selected_polygon = self.select()
 
@@ -197,14 +201,16 @@ class Simulation:
                     self.counter = 0
                     # pushing the better solution
                     self.canvas = newer_solution
-                    if not self.min_save:
-                        self.save_image(t)
+                    if not self.no_save or (self.no_save and t in checkpoints):
+                        if not self.min_save:
+                            self.save_image(t)
                 else:
                     self.counter += 1
                     # keep the old canvas
                     self.canvas = older_solution
-                if self.min_save:
-                    self.save_image(t)
+                if not self.no_save or (self.no_save and t in checkpoints):
+                    if self.min_save:
+                        self.save_image(t)
 
             else:
                 # NOTE: this is the reinit case
@@ -218,13 +224,16 @@ class Simulation:
                 # compare loss
                 if l_reinit < l_parent:
                     self.counter = 0
-                    if self.min_save:
-                        self.save_image(t)
+                    if not self.no_save or (self.no_save and t in checkpoints):
+                        if self.min_save:
+                            self.save_image(t)
                     is_reinit = False
                 else:
                     self.counter += 1
-                if not self.min_save:
-                    self.save_image(t)
+
+                if not self.no_save or (self.no_save and t in checkpoints):
+                    if not self.min_save:
+                        self.save_image(t)
 
             t += 1
 
