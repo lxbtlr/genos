@@ -35,7 +35,11 @@ def setup_logger(
 
 
 def mk_folder_path(
-    folder_name, *, sub_fldr_name: str = "-".join(time.ctime().split()[1:4])
+    folder_name,
+    *,
+    sub_fldr_name: str = ".".join(
+        ["-".join(time.ctime().split()[1:4]), f"time.time()//1"]
+    ),
 ) -> str:
     """
     Check to see if the folder exists, if not, make the folder.

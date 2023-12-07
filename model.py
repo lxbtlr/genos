@@ -6,9 +6,11 @@ import time
 
 
 # Create the simulation environment folder
-START_TIME = "-".join(time.ctime().split()[1:4]).replace(":", ".")
 simulation_data_folder = src.log_trace.mk_folder_path(
-    folder_name="playground", sub_fldr_name=str(START_TIME)
+    folder_name="playground",
+    sub_fldr_name=".".join(
+        ["-".join(time.ctime().split()[1:4]), f"{int(time.time()//1)}"]
+    ),
 )
 
 logger = logging.getLogger(__name__)

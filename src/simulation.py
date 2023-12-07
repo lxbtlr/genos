@@ -346,7 +346,11 @@ class Simulation:
 
 
 def make_folder_path(
-    folder_name="img", *, START_TIME: str = "-".join(time.ctime().split()[1:4])
+    folder_name="img",
+    *,
+    sub_fldr_name: str = ".".join(
+        ["-".join(time.ctime().split()[1:4]), f"{time.time()//1}"]
+    ),
 ) -> str:
     """
     Check to see if the folder exists, if not make the folder.
@@ -354,7 +358,8 @@ def make_folder_path(
     """
 
     script_loc = os.path.dirname(os.path.abspath(sys.argv[0]))
-    folder_path = os.path.join(script_loc, f"{folder_name}", START_TIME)
+    folder_path = os.path.join(script_loc, f"{folder_name}/{sub_fldr_name}")
+    print(folder_path)
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
     return folder_path
